@@ -24,8 +24,22 @@ body {
     text-align: center;
 }
 
-.etiqueta {
+.marca-app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     margin-bottom: 8px;
+}
+
+.logo-app {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.etiqueta {
     color: #2e9f89;
     font-size: 14px;
     font-weight: bold;
@@ -278,6 +292,11 @@ h2 {
 
     h1 {
         font-size: 28px;
+    }
+
+    .logo-app {
+        width: 36px;
+        height: 36px;
     }
 
     .tarjeta {
