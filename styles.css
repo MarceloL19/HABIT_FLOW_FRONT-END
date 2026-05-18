@@ -1,0 +1,301 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #24323f;
+    background: #eef8f6;
+}
+
+.contenedor-principal {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 32px 18px;
+}
+
+.encabezado-app {
+    max-width: 650px;
+    margin: 0 auto 24px;
+    text-align: center;
+}
+
+.etiqueta {
+    margin-bottom: 8px;
+    color: #2e9f89;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin-bottom: 10px;
+    color: #203040;
+    font-size: 34px;
+}
+
+h2 {
+    margin-bottom: 8px;
+    color: #203040;
+    font-size: 24px;
+}
+
+.descripcion-app,
+.texto-secundario,
+.texto-cambio {
+    color: #657282;
+    line-height: 1.5;
+}
+
+.tarjeta {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto 22px;
+    padding: 26px;
+    background: #ffffff;
+    border: 1px solid #ddebe9;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(32, 48, 64, 0.09);
+}
+
+.dashboard {
+    width: 100%;
+}
+
+.dashboard .tarjeta {
+    max-width: 920px;
+}
+
+.tarjeta-saludo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.oculto {
+    display: none;
+}
+
+.formulario {
+    margin-top: 20px;
+}
+
+.formulario-habito {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.grupo-campo {
+    margin-bottom: 16px;
+}
+
+.formulario-habito .grupo-campo {
+    margin-bottom: 0;
+}
+
+.grupo-campo label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #314354;
+}
+
+.grupo-campo input,
+.grupo-campo select,
+.grupo-campo textarea {
+    width: 100%;
+    padding: 12px 13px;
+    font: inherit;
+    color: #24323f;
+    background: #f8fbfc;
+    border: 1px solid #cbdbe1;
+    border-radius: 9px;
+    outline: none;
+}
+
+.grupo-campo input:focus,
+.grupo-campo select:focus,
+.grupo-campo textarea:focus {
+    border-color: #5cc9b4;
+    box-shadow: 0 0 0 3px rgba(92, 201, 180, 0.18);
+}
+
+.grupo-campo textarea {
+    resize: vertical;
+}
+
+.acciones-formulario {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.boton {
+    min-height: 44px;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 9px;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.boton-principal {
+    width: 100%;
+    color: #ffffff;
+    background: #2e9f89;
+}
+
+.boton-principal:hover {
+    background: #247f70;
+}
+
+.boton-secundario {
+    color: #2e647d;
+    background: #dff2f7;
+}
+
+.boton-secundario:hover {
+    background: #cae8f1;
+}
+
+.acciones-formulario .boton {
+    width: auto;
+}
+
+.boton-link {
+    border: 0;
+    color: #2e9f89;
+    background: transparent;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.texto-cambio {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.mensaje {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    line-height: 1.4;
+}
+
+.mensaje.error {
+    display: block;
+    color: #8a1f2d;
+    background: #ffe5e9;
+    border: 1px solid #f3b8c1;
+}
+
+.mensaje.exito {
+    display: block;
+    color: #1f6b55;
+    background: #e2f7ef;
+    border: 1px solid #a8dfce;
+}
+
+.lista-habitos {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.habito-card {
+    padding: 16px;
+    background: #f8fbfc;
+    border-left: 6px solid #5cc9b4;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(32, 48, 64, 0.06);
+}
+
+.habito-card h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.habito-card p {
+    margin-bottom: 6px;
+    color: #657282;
+    line-height: 1.4;
+}
+
+.habito-card .dato-habito {
+    color: #314354;
+    font-weight: bold;
+}
+
+.sin-habitos {
+    padding: 18px;
+    color: #657282;
+    text-align: center;
+    background: #f8fbfc;
+    border: 1px dashed #cbdbe1;
+    border-radius: 10px;
+}
+
+.color-verde-menta {
+    border-left-color: #5cc9b4;
+}
+
+.color-azul-suave {
+    border-left-color: #7ab7e8;
+}
+
+.color-naranja {
+    border-left-color: #f2a65a;
+}
+
+.color-morado {
+    border-left-color: #a888e8;
+}
+
+.color-celeste {
+    border-left-color: #65c7df;
+}
+
+.color-amarillo-suave {
+    border-left-color: #f2d46b;
+}
+
+@media (max-width: 720px) {
+    .contenedor-principal {
+        padding: 22px 14px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    .tarjeta {
+        padding: 20px;
+    }
+
+    .tarjeta-saludo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .formulario-habito,
+    .lista-habitos {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-formulario .boton,
+    .tarjeta-saludo .boton {
+        width: 100%;
+    }
+}
