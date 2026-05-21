@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "usuarioCorreo": "marcelo@gmail.com",
+    "nombre": "Beber agua",
+    "descripcion": "Tomar 8 vasos de agua al día",
+    "categoria": "Salud",
+    "frecuencia": "Diaria",
+    "completadoHoy": false,
+    "racha": 3,
+    "estado": "activo",
+    "diasCompletados": 12
+  },
+  {
+    "id": 2,
+    "usuarioCorreo": "marcelo@gmail.com",
+    "nombre": "Estudiar programación",
+    "descripcion": "Repasar React durante 30 minutos",
+    "categoria": "Estudio",
+    "frecuencia": "Diaria",
+    "completadoHoy": true,
+    "racha": 5,
+    "estado": "activo",
+    "diasCompletados": 20
+  }
+]

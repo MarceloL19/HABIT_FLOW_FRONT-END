@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "nombre": "Marcelo Loayza",
+    "correo": "marcelo@gmail.com",
+    "password": "123456",
+    "fechaRegistro": "2026-05-21",
+    "preferencias": {
+      "tema": "claro",
+      "idioma": "español",
+      "notificaciones": true
+    }
+  },
+  {
+    "id": 2,
+    "nombre": "Mariana Torres",
+    "correo": "mariana@gmail.com",
+    "password": "123456",
+    "fechaRegistro": "2026-05-20",
+    "preferencias": {
+      "tema": "oscuro",
+      "idioma": "español",
+      "notificaciones": true
+    }
+  },
+  {
+    "id": 3,
+    "nombre": "Carlos Rivas",
+    "correo": "carlos@gmail.com",
+    "password": "123456",
+    "fechaRegistro": "2026-05-19",
+    "preferencias": {
+      "tema": "claro",
+      "idioma": "inglés",
+      "notificaciones": false
+    }
+  }
+]

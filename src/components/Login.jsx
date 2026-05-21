@@ -1,6 +1,5 @@
 import { useState } from "react";
 import logoHabitFlow from "../assets/logo-habit-flow.png";
-
 const Login = ({ onLogin, irRegistro, irLanding }) => {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -10,20 +9,23 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
     evento.preventDefault();
 
     const usuarioGuardado = localStorage.getItem("usuarioHabitFlow");
+    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     if (correo === "" || password === "") {
       setMensaje("Completa el correo y la contraseña.");
       return;
     }
 
-    if (usuarioGuardado === null) {
+    if (usuarioGuardado === null && usuariosGuardados.length === 0) {
       setMensaje("Primero debes crear una cuenta.");
       return;
     }
 
-    const usuario = JSON.parse(usuarioGuardado);
+    const usuarioPrincipal = usuarioGuardado !== null ? JSON.parse(usuarioGuardado) : null;
+    const usuario = usuariosGuardados.find((usuarioItem) => usuarioItem.correo === correo)
+      || (usuarioPrincipal?.correo === correo ? usuarioPrincipal : null);
 
-    if (correo !== usuario.correo || password !== usuario.password) {
+    if (!usuario || correo !== usuario.correo || password !== usuario.password) {
       setMensaje("Correo o contraseña incorrectos.");
       return;
     }
@@ -33,13 +35,13 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
 
   return (
     <main className="pantalla-formulario">
-      <section className="tarjeta formulario-contenedor">
-        <div className="marca-formulario">
-          <img src={logoHabitFlow} alt="Logo de HabitFlow" />
-          <span>HabitFlow</span>
-        </div>
+      <button className="marca-volver" onClick={irLanding}>
+        <img src={logoHabitFlow} alt="Logo de HabitFlow" className="logo-marca" />
+        <span>HabitFlow</span>
+      </button>
 
-        <h1>Iniciar sesión</h1>
+      <section className="tarjeta formulario-contenedor">
+        <h1>Bienvenido de nuevo</h1>
         <p className="texto-secundario">Ingresa para continuar con tu seguimiento.</p>
 
         {mensaje !== "" && <p className="mensaje error">{mensaje}</p>}
@@ -51,7 +53,7 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
             type="email"
             value={correo}
             onChange={(evento) => setCorreo(evento.target.value)}
-            placeholder="nombre@email.com"
+            placeholder="tu@email.com"
           />
 
           <label htmlFor="loginPassword">Contraseña</label>
@@ -60,7 +62,7 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
             type="password"
             value={password}
             onChange={(evento) => setPassword(evento.target.value)}
-            placeholder="Tu contraseña"
+            placeholder="••••••••"
           />
 
           <button className="boton boton-principal" type="submit">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import logoHabitFlow from "../assets/logo-habit-flow.png";
-
-const Registro = ({ onRegistrar, irLogin, irDashboard }) => {
+const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -41,14 +40,14 @@ const Registro = ({ onRegistrar, irLogin, irDashboard }) => {
 
   return (
     <main className="pantalla-formulario">
-      <section className="tarjeta formulario-contenedor">
-        <div className="marca-formulario">
-          <img src={logoHabitFlow} alt="Logo de HabitFlow" />
-          <span>HabitFlow</span>
-        </div>
+      <button className="marca-volver" onClick={irLanding}>
+        <img src={logoHabitFlow} alt="Logo de HabitFlow" className="logo-marca" />
+        <span>HabitFlow</span>
+      </button>
 
-        <h1>Crear cuenta</h1>
-        <p className="texto-secundario">Regístrate para empezar a organizar tus hábitos.</p>
+      <section className="tarjeta formulario-contenedor">
+        <h1>Crea tu cuenta</h1>
+        <p className="texto-secundario">Comienza tu viaje hacia mejores hábitos.</p>
 
         {mensaje !== "" && (
           <p className={registroCorrecto ? "mensaje exito" : "mensaje error"}>{mensaje}</p>
@@ -61,7 +60,7 @@ const Registro = ({ onRegistrar, irLogin, irDashboard }) => {
             type="text"
             value={nombre}
             onChange={(evento) => setNombre(evento.target.value)}
-            placeholder="Mariana Torres"
+            placeholder="Tu nombre"
           />
 
           <label htmlFor="correo">Correo electrónico</label>
@@ -70,7 +69,7 @@ const Registro = ({ onRegistrar, irLogin, irDashboard }) => {
             type="email"
             value={correo}
             onChange={(evento) => setCorreo(evento.target.value)}
-            placeholder="nombre@email.com"
+            placeholder="tu@email.com"
           />
 
           <label htmlFor="password">Contraseña</label>
@@ -106,6 +105,10 @@ const Registro = ({ onRegistrar, irLogin, irDashboard }) => {
           ¿Ya tienes cuenta?
           <button onClick={irLogin}>Iniciar sesión</button>
         </p>
+
+        <button className="boton boton-texto boton-ancho" onClick={irLanding}>
+          Volver al inicio
+        </button>
       </section>
     </main>
   );
