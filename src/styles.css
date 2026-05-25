@@ -763,3 +763,357 @@ body.tema-oscuro .dato-card {
     padding: 28px 22px;
   }
 }
+
+.estadisticas-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 31px;
+}
+
+.encabezado-estadisticas h1 {
+  margin-bottom: 8px;
+  font-size: 31px;
+}
+
+.estadisticas-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.stat-card {
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 26px;
+  text-align: center;
+}
+
+.stat-icono {
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 24px;
+}
+
+.stat-icono.fuego {
+  color: #f97316;
+  background: #ffedd5;
+}
+
+.stat-icono.progreso {
+  color: #059669;
+  background: #dcfce7;
+}
+
+.stat-icono.total {
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+.stat-card h2 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.stat-card strong {
+  color: var(--verde);
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.stat-card:first-child strong {
+  color: #f97316;
+}
+
+.stat-card:last-child strong {
+  color: #2563eb;
+}
+
+.estadisticas-graficos,
+.estadisticas-detalles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 29px;
+}
+
+.grafico-card {
+  min-height: 315px;
+  padding: 24px;
+}
+
+.grafico-card h2,
+.top-habitos h2,
+.mejor-habito h2,
+.mensaje-motivacional h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.grafico-barras {
+  height: 220px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 4px 0;
+  border-bottom: 2px solid var(--borde);
+}
+
+.barra-item {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: end;
+  gap: 9px;
+  color: #94a3b8;
+}
+
+.barra-contenedor {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+
+.barra {
+  width: min(54px, 80%);
+  min-height: 18px;
+  display: block;
+  background: var(--verde);
+  border-radius: 8px 8px 0 0;
+}
+
+.grafico-linea {
+  width: 100%;
+  overflow: hidden;
+}
+
+.grafico-linea svg {
+  width: 100%;
+  height: 220px;
+}
+
+.grafico-linea text {
+  fill: #94a3b8;
+  font-size: 16px;
+}
+
+.top-habitos,
+.mejor-habito,
+.mensaje-motivacional {
+  padding: 24px;
+}
+
+.top-habitos ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.top-habitos li {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 14px;
+}
+
+body.tema-oscuro .top-habitos li {
+  background: #102033;
+}
+
+.ranking {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blanco);
+  background: var(--verde);
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.top-habitos li:nth-child(2) .ranking {
+  background: #06b6d4;
+}
+
+.top-habitos li:nth-child(3) .ranking {
+  background: #a855f7;
+}
+
+.top-habitos li:nth-child(4) .ranking {
+  background: #f97316;
+}
+
+.top-habitos li:nth-child(5) .ranking {
+  background: #eab308;
+}
+
+.top-habitos strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.top-habitos p,
+.mejor-habito p {
+  color: var(--texto-suave);
+}
+
+.racha-mini {
+  color: #f97316;
+  font-weight: 700;
+}
+
+.columna-estadisticas {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mejor-habito-contenido {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 24px;
+  align-items: center;
+  padding: 18px;
+  background: #ecfdf5;
+  border-radius: 14px;
+}
+
+body.tema-oscuro .mejor-habito-contenido {
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.mejor-habito-contenido h3 {
+  font-size: 20px;
+}
+
+.mejor-habito-contenido strong {
+  color: var(--verde);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.mensaje-motivacional {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+body.tema-oscuro .mensaje-motivacional {
+  background: rgba(96, 165, 250, 0.12);
+}
+
+@media (max-width: 900px) {
+  .estadisticas-resumen,
+  .estadisticas-graficos,
+  .estadisticas-detalles {
+    grid-template-columns: 1fr;
+  }
+
+  .mejor-habito-contenido {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .stat-card {
+    min-height: 180px;
+  }
+
+  .top-habitos li {
+    grid-template-columns: 38px 1fr;
+  }
+
+  .racha-mini {
+    grid-column: 2;
+  }
+}
+
+.estadisticas-graficos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 29px;
+}
+
+.grafico-card {
+  min-height: 315px;
+  padding: 24px;
+}
+
+.grafico-card h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.grafico-barras {
+  height: 220px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 4px 0;
+  border-bottom: 2px solid var(--borde);
+}
+
+.barra-item {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: end;
+  gap: 9px;
+  color: #94a3b8;
+}
+
+.barra-contenedor {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+
+.barra {
+  width: min(54px, 80%);
+  min-height: 18px;
+  display: block;
+  background: var(--verde);
+  border-radius: 8px 8px 0 0;
+}
+
+.grafico-linea svg {
+  width: 100%;
+  height: 220px;
+}
+
+.grafico-linea .eje {
+  stroke: var(--borde);
+  stroke-width: 2;
+}
+
+.grafico-linea text {
+  fill: #94a3b8;
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .estadisticas-graficos {
+    grid-template-columns: 1fr;
+  }
+}
