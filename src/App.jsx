@@ -136,7 +136,7 @@ const App = () => {
 
   const mostrarPantallaInterna = () => {
     if (pantalla === "habitos") {
-      return <MisHabitos />;
+      return <MisHabitos usuario={usuario} />;
     }
 
     if (pantalla === "estadisticas") {
@@ -154,7 +154,7 @@ const App = () => {
       );
     }
 
-    return <Dashboard usuario={usuario} />;
+    return <Dashboard usuario={usuario} irAHabitos={() => setPantalla("habitos")} />;
   };
 
   if (pantalla === "registro") {
