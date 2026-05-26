@@ -140,7 +140,7 @@ const App = () => {
     }
 
     if (pantalla === "estadisticas") {
-      return <Estadisticas />;
+      return <Estadisticas usuario={usuario} />;
     }
 
     if (pantalla === "perfil") {
