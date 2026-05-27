@@ -8,7 +8,7 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
   const iniciarSesion = (evento) => {
     evento.preventDefault();
 
-    const usuarioGuardado = localStorage.getItem("usuarioHabitFlow");
+    const usuarioGuardado = localStorage.getItem("usuarioSesionActiva");
     const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     if (correo === "" || password === "") {

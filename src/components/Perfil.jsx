@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const CLAVE_HABITOS = "habitosHabitFlow";
 
 const formatearFecha = (fecha, idiomaActual) => {
   if (!fecha) {
@@ -21,14 +23,19 @@ const textosPerfil = {
     titulo: "Mi Perfil",
     miembroDesde: "Miembro desde",
     estadisticas: "Estadísticas generales",
-    total: "Total de hábitos",
-    activos: "Hábitos activos",
-    completados: "Completados",
+    total: "Hábitos registrados",
+    activos: "Completados hoy",
+    completados: "Días completados",
     preferencias: "Preferencias",
     nombre: "Nombre completo",
     correo: "Correo electrónico",
     tema: "Tema",
+    temaClaro: "Claro",
+    temaOscuro: "Oscuro",
+    temaSistema: "Sistema",
     idioma: "Idioma",
+    idiomaEspanol: "Español",
+    idiomaIngles: "Inglés",
     notificaciones: "Activar notificaciones",
     guardar: "Guardar cambios",
     acciones: "Acciones",
@@ -47,14 +54,19 @@ const textosPerfil = {
     titulo: "My Profile",
     miembroDesde: "Member since",
     estadisticas: "General stats",
-    total: "Total habits",
-    activos: "Active habits",
-    completados: "Completed",
+    total: "Registered habits",
+    activos: "Completed today",
+    completados: "Completed days",
     preferencias: "Preferences",
     nombre: "Full name",
     correo: "Email",
     tema: "Theme",
+    temaClaro: "Light",
+    temaOscuro: "Dark",
+    temaSistema: "System",
     idioma: "Language",
+    idiomaEspanol: "Spanish",
+    idiomaIngles: "English",
     notificaciones: "Enable notifications",
     guardar: "Save changes",
     acciones: "Actions",
@@ -86,8 +98,26 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   const [idioma, setIdioma] = useState(preferenciasIniciales.idioma);
   const [notificaciones, setNotificaciones] = useState(preferenciasIniciales.notificaciones);
   const [mensaje, setMensaje] = useState("");
+  const [habitos, setHabitos] = useState([]);
 
   const inicial = usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : "H";
+  const habitosDelUsuario = habitos.filter((habito) => habito.usuarioCorreo === usuario?.correo);
+  const totalHabitos = habitosDelUsuario.length;
+  const completadosHoy = habitosDelUsuario.filter((habito) => habito.completadoHoy).length;
+  const habitosCompletados = habitosDelUsuario.reduce((total, habito) => {
+    return total + (Number(habito.diasCompletados) || 0);
+  }, 0);
+
+  useEffect(() => {
+    const cargarHabitos = () => {
+      const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
+      setHabitos(habitosGuardados);
+    };
+
+    cargarHabitos();
+    window.addEventListener("focus", cargarHabitos);
+    return () => window.removeEventListener("focus", cargarHabitos);
+  }, []);
 
   const guardarCambios = (evento) => {
     evento.preventDefault();
@@ -133,15 +163,15 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
             <div className="metricas-perfil">
               <div className="metrica verde">
                 <span>◎ {textos.total}</span>
-                <strong>0</strong>
+                <strong>{totalHabitos}</strong>
               </div>
               <div className="metrica azul">
                 <span>◎ {textos.activos}</span>
-                <strong>0</strong>
+                <strong>{completadosHoy}</strong>
               </div>
               <div className="metrica morado">
                 <span>◎ {textos.completados}</span>
-                <strong>0</strong>
+                <strong>{habitosCompletados}</strong>
               </div>
             </div>
           </article>
@@ -177,9 +207,9 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
                 disabled={!editando}
                 onChange={(evento) => setTema(evento.target.value)}
               >
-                <option value="claro">Claro</option>
-                <option value="oscuro">Oscuro</option>
-                <option value="sistema">Sistema</option>
+                <option value="claro">{textos.temaClaro}</option>
+                <option value="oscuro">{textos.temaOscuro}</option>
+                <option value="sistema">{textos.temaSistema}</option>
               </select>
 
               <label htmlFor="idioma">{textos.idioma}</label>
@@ -189,8 +219,8 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
                 disabled={!editando}
                 onChange={(evento) => setIdioma(evento.target.value)}
               >
-                <option value="español">Español</option>
-                <option value="inglés">Inglés</option>
+                <option value="español">{textos.idiomaEspanol}</option>
+                <option value="inglés">{textos.idiomaIngles}</option>
               </select>
 
               <label className="fila-check">

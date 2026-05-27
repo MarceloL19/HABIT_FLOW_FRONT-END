@@ -22,5 +22,101 @@
     "racha": 5,
     "estado": "activo",
     "diasCompletados": 20
+  },
+  {
+    "id": 3,
+    "usuarioCorreo": "mariana@gmail.com",
+    "nombre": "Caminar 30 minutos",
+    "descripcion": "Salir a caminar despues del trabajo",
+    "categoria": "Deporte",
+    "frecuencia": "Diaria",
+    "completadoHoy": true,
+    "racha": 6,
+    "estado": "activo",
+    "diasCompletados": 18
+  },
+  {
+    "id": 4,
+    "usuarioCorreo": "mariana@gmail.com",
+    "nombre": "Leer antes de dormir",
+    "descripcion": "Leer 15 paginas de un libro",
+    "categoria": "Personal",
+    "frecuencia": "Diaria",
+    "completadoHoy": false,
+    "racha": 4,
+    "estado": "activo",
+    "diasCompletados": 14
+  },
+  {
+    "id": 5,
+    "usuarioCorreo": "mariana@gmail.com",
+    "nombre": "Planificar el dia",
+    "descripcion": "Organizar pendientes y prioridades",
+    "categoria": "Trabajo",
+    "frecuencia": "Diaria",
+    "completadoHoy": true,
+    "racha": 8,
+    "estado": "activo",
+    "diasCompletados": 22
+  },
+  {
+    "id": 6,
+    "usuarioCorreo": "mariana@gmail.com",
+    "nombre": "Meditar",
+    "descripcion": "Respirar y meditar por 10 minutos",
+    "categoria": "Salud",
+    "frecuencia": "Diaria",
+    "completadoHoy": false,
+    "racha": 2,
+    "estado": "activo",
+    "diasCompletados": 9
+  },
+  {
+    "id": 7,
+    "usuarioCorreo": "carlos@gmail.com",
+    "nombre": "Practicar ingles",
+    "descripcion": "Repasar vocabulario y escuchar un podcast",
+    "categoria": "Estudio",
+    "frecuencia": "Diaria",
+    "completadoHoy": true,
+    "racha": 7,
+    "estado": "activo",
+    "diasCompletados": 25
+  },
+  {
+    "id": 8,
+    "usuarioCorreo": "carlos@gmail.com",
+    "nombre": "Ejercicios de fuerza",
+    "descripcion": "Completar una rutina corta en casa",
+    "categoria": "Deporte",
+    "frecuencia": "Semanal",
+    "completadoHoy": false,
+    "racha": 3,
+    "estado": "activo",
+    "diasCompletados": 11
+  },
+  {
+    "id": 9,
+    "usuarioCorreo": "carlos@gmail.com",
+    "nombre": "Ordenar escritorio",
+    "descripcion": "Mantener limpio el espacio de estudio",
+    "categoria": "Personal",
+    "frecuencia": "Diaria",
+    "completadoHoy": true,
+    "racha": 5,
+    "estado": "activo",
+    "diasCompletados": 16
+  },
+  {
+    "id": 10,
+    "usuarioCorreo": "carlos@gmail.com",
+    "nombre": "Tomar descansos",
+    "descripcion": "Hacer pausas breves durante sesiones largas",
+    "categoria": "Salud",
+    "frecuencia": "Diaria",
+    "completadoHoy": false,
+    "racha": 4,
+    "estado": "activo",
+    "diasCompletados": 13
   }
 ]

@@ -1210,6 +1210,134 @@ body.tema-oscuro .top-habito-boton.activo {
   font-weight: 700;
   box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
 }
+
+body.tema-oscuro .boton-principal,
+body.tema-oscuro .boton-secundario,
+body.tema-oscuro .boton-peligro,
+body.tema-oscuro .btn-agregar,
+body.tema-oscuro .btn-eliminar,
+body.tema-oscuro .btn-cancelar {
+  color: #ffffff;
+}
+
+body.tema-oscuro .bienvenida h1,
+body.tema-oscuro .habitos-header h2,
+body.tema-oscuro .titulo-pagina,
+body.tema-oscuro .perfil-resumen h2,
+body.tema-oscuro .estadisticas-perfil h2,
+body.tema-oscuro .preferencias-card h2,
+body.tema-oscuro .acciones-perfil h2,
+body.tema-oscuro .consejo-card h2,
+body.tema-oscuro .dato-card h2,
+body.tema-oscuro .encabezado-estadisticas h1,
+body.tema-oscuro .stat-card h2,
+body.tema-oscuro .grafico-card h2,
+body.tema-oscuro .top-habitos h2,
+body.tema-oscuro .mejor-habito h2,
+body.tema-oscuro .mensaje-motivacional h2,
+body.tema-oscuro .habito-info h3,
+body.tema-oscuro .tarjeta-habito h3,
+body.tema-oscuro .mejor-habito-contenido h3,
+body.tema-oscuro .modal h3,
+body.tema-oscuro .top-habitos strong {
+  color: #f8fafc;
+}
+
+body.tema-oscuro .bienvenida p,
+body.tema-oscuro .tarjeta-header,
+body.tema-oscuro .habitos-vacio,
+body.tema-oscuro .habito-info > p,
+body.tema-oscuro .tarjeta p,
+body.tema-oscuro .modal p,
+body.tema-oscuro .encabezado-estadisticas p,
+body.tema-oscuro .stat-card p,
+body.tema-oscuro .top-habitos p,
+body.tema-oscuro .mejor-habito p {
+  color: #c7d7ea;
+}
+
+body.tema-oscuro .tarjeta h2,
+body.tema-oscuro .tarjeta h3,
+body.tema-oscuro .tarjeta strong,
+body.tema-oscuro .habitos-vacio h3 {
+  color: #f8fafc;
+}
+
+body.tema-oscuro .grid-resumen .tarjeta h2,
+body.tema-oscuro .stat-card strong,
+body.tema-oscuro .metrica strong {
+  color: #ffffff;
+}
+
+body.tema-oscuro .metrica.verde span,
+body.tema-oscuro .metrica.verde strong {
+  color: #34d399;
+}
+
+body.tema-oscuro .metrica.azul span,
+body.tema-oscuro .metrica.azul strong {
+  color: #60a5fa;
+}
+
+body.tema-oscuro .metrica.morado span,
+body.tema-oscuro .metrica.morado strong {
+  color: #c084fc;
+}
+
+body.tema-oscuro .tooltip-mes rect {
+  fill: #102033;
+  stroke: #38536f;
+}
+
+body.tema-oscuro .tooltip-mes text {
+  fill: #e5f0ff;
+}
+
+body.tema-oscuro .habito-card {
+  background: #142238;
+  border: 1px solid #2c4965;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+}
+
+body.tema-oscuro .habito-card:hover {
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.3);
+}
+
+body.tema-oscuro .habito-card.completado {
+  opacity: 1;
+  background: #102033;
+}
+
+body.tema-oscuro .habito-card.completado .habito-info h3 {
+  color: #dbeafe;
+}
+
+body.tema-oscuro .habito-card.completado .habito-info > p {
+  color: #adc0d6;
+}
+
+body.tema-oscuro .tag {
+  background: rgba(226, 232, 240, 0.12);
+}
+
+body.tema-oscuro .tag.gris {
+  color: #c7d7ea;
+}
+
+body.tema-oscuro .btn-completar.completado {
+  color: #dcfce7;
+  background: #15803d;
+}
+
+body.tema-oscuro .btn-icono {
+  background: rgba(226, 232, 240, 0.08);
+  border-color: #38536f;
+}
+
+body.tema-oscuro .btn-icono:hover {
+  background: rgba(226, 232, 240, 0.16);
+}
+
 @media (max-width: 520px) {
   .landing { padding: 14px 18px 34px; }
   .beneficios { grid-template-columns: 1fr; }
