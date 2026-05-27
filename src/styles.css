@@ -1293,6 +1293,37 @@ body.tema-oscuro .tooltip-mes text {
   fill: #e5f0ff;
 }
 
+body.tema-oscuro .modal-overlay {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+body.tema-oscuro .modal {
+  background: #142238;
+  border: 1px solid #38536f;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+}
+
+body.tema-oscuro .modal-cerrar {
+  color: #c7d7ea;
+}
+
+body.tema-oscuro .modal-cerrar:hover {
+  color: #ffffff;
+}
+
+body.tema-oscuro .modal p {
+  color: #c7d7ea;
+}
+
+body.tema-oscuro .btn-cancelar {
+  color: #e5f0ff;
+  background: #263850;
+}
+
+body.tema-oscuro .btn-cancelar:hover {
+  background: #334a67;
+}
+
 body.tema-oscuro .habito-card {
   background: #142238;
   border: 1px solid #2c4965;
