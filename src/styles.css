@@ -1117,3 +1117,93 @@ body.tema-oscuro .mensaje-motivacional {
     grid-template-columns: 1fr;
   }
 }
+
+.barra {
+  border: 0;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.barra:hover,
+.barra.activa {
+  background: #059669;
+  transform: translateY(-4px);
+}
+
+.grafico-info {
+  margin-top: 14px;
+  color: var(--verde-oscuro);
+  font-weight: 700;
+}
+
+.top-habitos li {
+  padding: 0;
+  overflow: hidden;
+}
+
+.top-habito-boton {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  text-align: left;
+  border-radius: 14px;
+}
+
+.top-habito-boton:hover,
+.top-habito-boton.activo {
+  background: #ecfdf5;
+}
+
+body.tema-oscuro .top-habito-boton:hover,
+body.tema-oscuro .top-habito-boton.activo {
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.punto-mes-grupo {
+  cursor: pointer;
+}
+
+.punto-mes {
+  fill: #60a5fa;
+  transition: 0.2s;
+}
+
+.punto-mes-grupo:hover .punto-mes,
+.punto-mes.activo {
+  fill: #2563eb;
+  r: 9;
+}
+
+.tooltip-mes rect {
+  fill: #ffffff;
+  stroke: var(--borde);
+  filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.16));
+}
+
+.tooltip-mes text {
+  fill: var(--texto);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.top-habitos li {
+  position: relative;
+}
+
+.top-habito-tooltip {
+  width: fit-content;
+  margin: 8px 16px 0 auto;
+  padding: 8px 12px;
+  color: var(--verde-oscuro);
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+}
