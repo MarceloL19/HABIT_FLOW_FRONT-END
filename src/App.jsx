@@ -40,7 +40,7 @@ const App = () => {
   const idiomaActual = usuario?.preferencias?.idioma || "español";
   const textos = textosNavegacion[idiomaActual] || textosNavegacion.español;
 
-  // Revisa si ya existe una sesion activa cuando carga la aplicacion.
+  // Carga los datos iniciales y restaura la sesion activa si el usuario ya habia iniciado sesion.
   useEffect(() => {
     const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
     const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
@@ -88,14 +88,15 @@ const App = () => {
     }
   }, []);
 
+  // Aplica el tema visual elegido en el perfil: claro u oscuro.
   useEffect(() => {
     const tema = usuario?.preferencias?.tema || "claro";
-    const prefiereOscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const usarOscuro = tema === "oscuro" || (tema === "sistema" && prefiereOscuro);
+    const usarOscuro = tema === "oscuro";
 
     document.body.classList.toggle("tema-oscuro", usarOscuro);
   }, [usuario]);
 
+  // Registra un usuario nuevo, le asigna un ID correlativo y lo deja como usuario activo.
   const registrarUsuario = (nuevoUsuario) => {
     const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
     const ultimoId = usuariosGuardados.reduce((mayorId, usuarioItem) => {
@@ -112,6 +113,7 @@ const App = () => {
     setUsuario(usuarioConId);
   };
 
+  // Guarda la sesion cuando Login valida correctamente el correo y la contrasena.
   const iniciarSesion = (usuarioEncontrado) => {
     localStorage.setItem(CLAVE_SESION, "true");
     localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuarioEncontrado));
@@ -119,6 +121,7 @@ const App = () => {
     setPantalla("dashboard");
   };
 
+  // Actualiza los datos personales y preferencias tanto en la lista de usuarios como en la sesion activa.
   const actualizarUsuario = (usuarioActualizado) => {
     const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
     const usuariosActualizados = usuariosGuardados.map((usuarioItem) => {
@@ -137,6 +140,7 @@ const App = () => {
     setUsuario(usuarioActualizado);
   };
 
+  // Cierra la sesion eliminando las claves del usuario activo.
   const cerrarSesion = () => {
     localStorage.removeItem(CLAVE_SESION);
     localStorage.removeItem(CLAVE_USUARIO);
@@ -144,6 +148,7 @@ const App = () => {
     setPantalla("landing");
   };
 
+  // Decide que pantalla interna se muestra segun la opcion elegida en la barra de navegacion.
   const mostrarPantallaInterna = () => {
     if (pantalla === "habitos") {
       return <MisHabitos usuario={usuario} />;

@@ -5,6 +5,7 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
 
+  // Valida las credenciales contra los usuarios guardados antes de iniciar sesion.
   const iniciarSesion = (evento) => {
     evento.preventDefault();
 

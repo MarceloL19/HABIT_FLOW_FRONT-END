@@ -8,6 +8,7 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   const [mensaje, setMensaje] = useState("");
   const [registroCorrecto, setRegistroCorrecto] = useState(false);
 
+  // Valida el formulario y envia el usuario nuevo a App para guardarlo.
   const registrar = (evento) => {
     evento.preventDefault();
 
@@ -33,6 +34,7 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
     setRegistroCorrecto(true);
   };
 
+  // Permite entrar a la app despues de crear la cuenta correctamente.
   const entrarAlDashboard = () => {
     localStorage.setItem("sesionActiva", "true");
     irDashboard();

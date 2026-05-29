@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 const CLAVE_HABITOS = "habitosHabitFlow";
 
+// Muestra la fecha de registro segun el idioma elegido en las preferencias.
 const formatearFecha = (fecha, idiomaActual) => {
   if (!fecha) {
     return "Fecha no registrada";
@@ -32,7 +33,6 @@ const textosPerfil = {
     tema: "Tema",
     temaClaro: "Claro",
     temaOscuro: "Oscuro",
-    temaSistema: "Sistema",
     idioma: "Idioma",
     idiomaEspanol: "Español",
     idiomaIngles: "Inglés",
@@ -63,7 +63,6 @@ const textosPerfil = {
     tema: "Theme",
     temaClaro: "Light",
     temaOscuro: "Dark",
-    temaSistema: "System",
     idioma: "Language",
     idiomaEspanol: "Spanish",
     idiomaIngles: "English",
@@ -94,12 +93,13 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   const [editando, setEditando] = useState(false);
   const [nombre, setNombre] = useState(usuario?.nombre || "");
   const [correo, setCorreo] = useState(usuario?.correo || "");
-  const [tema, setTema] = useState(preferenciasIniciales.tema);
+  const [tema, setTema] = useState(preferenciasIniciales.tema === "oscuro" ? "oscuro" : "claro");
   const [idioma, setIdioma] = useState(preferenciasIniciales.idioma);
   const [notificaciones, setNotificaciones] = useState(preferenciasIniciales.notificaciones);
   const [mensaje, setMensaje] = useState("");
   const [habitos, setHabitos] = useState([]);
 
+  // Calcula las metricas del perfil usando solo los habitos del usuario activo.
   const inicial = usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : "H";
   const habitosDelUsuario = habitos.filter((habito) => habito.usuarioCorreo === usuario?.correo);
   const totalHabitos = habitosDelUsuario.length;
@@ -108,6 +108,7 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
     return total + (Number(habito.diasCompletados) || 0);
   }, 0);
 
+  // Lee los habitos desde localStorage para mantener actualizadas las estadisticas del perfil.
   useEffect(() => {
     const cargarHabitos = () => {
       const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
@@ -119,6 +120,7 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
     return () => window.removeEventListener("focus", cargarHabitos);
   }, []);
 
+  // Guarda cambios de datos personales y preferencias, y los envia a App para actualizar la sesion.
   const guardarCambios = (evento) => {
     evento.preventDefault();
 
@@ -209,7 +211,6 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
               >
                 <option value="claro">{textos.temaClaro}</option>
                 <option value="oscuro">{textos.temaOscuro}</option>
-                <option value="sistema">{textos.temaSistema}</option>
               </select>
 
               <label htmlFor="idioma">{textos.idioma}</label>
