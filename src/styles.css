@@ -1320,6 +1320,51 @@ body.tema-oscuro .btn-cancelar {
   background: #263850;
 }
 
+.controles-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.controles-mes button {
+  padding: 8px 12px;
+  color: var(--verde-oscuro);
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.controles-mes button:disabled {
+  cursor: not-allowed;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-color: var(--borde);
+}
+
+.controles-mes strong {
+  color: var(--texto);
+  font-size: 16px;
+}
+
+body.tema-oscuro .controles-mes button {
+  color: #dffcf1;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(125, 241, 194, 0.45);
+}
+
+body.tema-oscuro .controles-mes button:disabled {
+  color: #7d90a8;
+  background: #102033;
+  border-color: #38536f;
+}
+
+body.tema-oscuro .controles-mes strong {
+  color: #f8fafc;
+}
+
 body.tema-oscuro .btn-cancelar:hover {
   background: #334a67;
 }
@@ -1377,4 +1422,47 @@ body.tema-oscuro .btn-icono:hover {
   .marca-texto .logo-marca { width: 48px; height: 48px; }
   .acciones-hero .boton, .acciones-topbar .boton, .navegacion button { width: 100%; justify-content: center; }
   .formulario-contenedor { padding: 28px 22px; }
+}
+
+.filtros-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.filtros-top button {
+  padding: 9px 13px;
+  color: var(--texto);
+  background: #f8fafc;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.filtros-top button:hover,
+.filtros-top button.activo {
+  color: var(--verde-oscuro);
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+
+body.tema-oscuro .filtros-top button {
+  color: #e5f0ff;
+  background: #102033;
+}
+
+body.tema-oscuro .filtros-top button:hover,
+body.tema-oscuro .filtros-top button.activo {
+  color: #dffcf1;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(125, 241, 194, 0.45);
+}
+
+.acciones-estadisticas {
+  margin-top: 18px;
+}
+
+.acciones-estadisticas .boton {
+  width: fit-content;
 }
