@@ -2,15 +2,18 @@ import { useState } from "react";
 import habitosIniciales from "../data/habitos.json";
 
 const Estadisticas = ({ usuario }) => {
+  // Estados para controlar las selecciones interactivas de la pantalla.
   const [diaSeleccionado, setDiaSeleccionado] = useState("Jue");
   const [semanaSeleccionada, setSemanaSeleccionada] = useState("S4");
   const [filtroTop, setFiltroTop] = useState("todos");
   const [mesSeleccionado, setMesSeleccionado] = useState(0);
 
+  // Filtra los habitos para mostrar solo los que pertenecen al usuario activo.
   const habitosUsuario = habitosIniciales.filter((habito) => {
     return habito.usuarioCorreo === usuario?.correo;
   });
 
+  // Calculos principales que alimentan las tarjetas superiores.
   const totalHabitos = habitosUsuario.length;
 
   const completadosHoy = habitosUsuario.filter((habito) => {
@@ -28,31 +31,35 @@ const Estadisticas = ({ usuario }) => {
   const progresoSemanal =
     totalHabitos > 0 ? Math.round((completadosHoy / totalHabitos) * 100) : 0;
 
+  // Aplica el filtro seleccionado en los botones del Top de habitos.
   const habitosFiltrados = habitosUsuario.filter((habito) => {
-  if (filtroTop === "activos") {
-    return habito.estado === "activo";
-  }
+    if (filtroTop === "activos") {
+      return habito.estado === "activo";
+    }
 
-  if (filtroTop === "hoy") {
-    return habito.completadoHoy;
-  }
+    if (filtroTop === "hoy") {
+      return habito.completadoHoy;
+    }
 
-  return true;
-});
+    return true;
+  });
 
+  // Ordena los habitos por cantidad de dias completados y toma los primeros 5.
   const topHabitos = [...habitosFiltrados]
     .sort((a, b) => b.diasCompletados - a.diasCompletados)
     .slice(0, 5);
 
   const mejorHabito = topHabitos[0];
 
+  // Mensaje que cambia segun el porcentaje de progreso semanal.
   const mensajeMotivacional =
-  progresoSemanal >= 70
-    ? "Excelente avance, vas construyendo una gran constancia."
-    : progresoSemanal >= 40
-      ? "Buen progreso, sigue completando tus habitos esta semana."
-      : "Cada dia cuenta, elige un habito pequeno y empieza de nuevo.";
+    progresoSemanal >= 70
+      ? "Excelente avance, vas construyendo una gran constancia."
+      : progresoSemanal >= 40
+        ? "Buen progreso, sigue completando tus habitos esta semana."
+        : "Cada dia cuenta, elige un habito pequeno y empieza de nuevo.";
 
+  // Datos simulados para el grafico de cumplimiento semanal.
   const datosSemana = [
     { dia: "Lun", total: 3 },
     { dia: "Mar", total: 4 },
@@ -63,6 +70,7 @@ const Estadisticas = ({ usuario }) => {
     { dia: "Dom", total: 2 }
   ];
 
+  // Datos simulados por mes para el grafico de progreso mensual.
   const mesesProgreso = [
     {
       nombre: "Mayo",
@@ -95,6 +103,8 @@ const Estadisticas = ({ usuario }) => {
 
   const mesActual = mesesProgreso[mesSeleccionado];
   const datosMes = mesActual.datos;
+
+  // Convierte porcentajes en coordenadas para dibujar la linea SVG dinamicamente.
   const posicionesMes = [35, 150, 265, 385];
   const puntosMes = datosMes.map((dato, index) => {
     return {
@@ -125,47 +135,48 @@ const Estadisticas = ({ usuario }) => {
   const detalleDia =
     datosSemana.find((dato) => dato.dia === diaSeleccionado) || datosSemana[0];
 
+  // Genera y descarga un archivo TXT con el resumen de estadisticas.
   const descargarReporteTxt = () => {
-  const lineas = [
-    "REPORTE DE ESTADISTICAS - HABITFLOW",
-    "",
-    `Usuario: ${usuario?.nombre || "Usuario no identificado"}`,
-    `Correo: ${usuario?.correo || "Sin correo"}`,
-    "",
-    "RESUMEN GENERAL",
-    `Racha actual: ${rachaActual} dias consecutivos`,
-    `Progreso semanal: ${progresoSemanal}%`,
-    `Total de habitos completados: ${totalCompletados}`,
-    "",
-    "CUMPLIMIENTO SEMANAL",
-    ...datosSemana.map((dato) => {
-      return `${dato.dia}: ${dato.total} habitos completados`;
-    }),
-    "",
-    "PROGRESO MENSUAL",
-    ...datosMes.map((dato) => {
-      return `${dato.semana}: ${dato.progreso}%`;
-    }),
-    "",
-    "TOP DE HABITOS EN RACHA",
-    ...topHabitos.map((habito, index) => {
-      return `${index + 1}. ${habito.nombre} - ${habito.racha} dias - ${habito.diasCompletados} veces`;
-    }),
-    "",
-    "MENSAJE MOTIVACIONAL",
-    mensajeMotivacional
-  ];
+    const lineas = [
+      "REPORTE DE ESTADISTICAS - HABITFLOW",
+      "",
+      `Usuario: ${usuario?.nombre || "Usuario no identificado"}`,
+      `Correo: ${usuario?.correo || "Sin correo"}`,
+      "",
+      "RESUMEN GENERAL",
+      `Racha actual: ${rachaActual} dias consecutivos`,
+      `Progreso semanal: ${progresoSemanal}%`,
+      `Total de habitos completados: ${totalCompletados}`,
+      "",
+      "CUMPLIMIENTO SEMANAL",
+      ...datosSemana.map((dato) => {
+        return `${dato.dia}: ${dato.total} habitos completados`;
+      }),
+      "",
+      "PROGRESO MENSUAL",
+      ...datosMes.map((dato) => {
+        return `${dato.semana}: ${dato.progreso}%`;
+      }),
+      "",
+      "TOP DE HABITOS EN RACHA",
+      ...topHabitos.map((habito, index) => {
+        return `${index + 1}. ${habito.nombre} - ${habito.racha} dias - ${habito.diasCompletados} veces`;
+      }),
+      "",
+      "MENSAJE MOTIVACIONAL",
+      mensajeMotivacional
+    ];
 
-  const contenido = lineas.join("\n");
-  const archivo = new Blob([contenido], { type: "text/plain" });
-  const enlace = document.createElement("a");
+    const contenido = lineas.join("\n");
+    const archivo = new Blob([contenido], { type: "text/plain" });
+    const enlace = document.createElement("a");
 
-  enlace.href = URL.createObjectURL(archivo);
-  enlace.download = "reporte-estadisticas-habitflow.txt";
-  enlace.click();
+    enlace.href = URL.createObjectURL(archivo);
+    enlace.download = "reporte-estadisticas-habitflow.txt";
+    enlace.click();
 
-  URL.revokeObjectURL(enlace.href);
-};
+    URL.revokeObjectURL(enlace.href);
+  };
 
   return (
     <main className="contenedor-interno">
@@ -175,15 +186,16 @@ const Estadisticas = ({ usuario }) => {
         <p className="texto-secundario">
           Revisa tu avance, tus rachas y tus habitos mas constantes.
         </p>
+
         <div className="acciones-estadisticas">
-  <button
-    className="boton boton-principal"
-    onClick={descargarReporteTxt}
-    type="button"
-  >
-    Descargar reporte TXT
-  </button>
-</div>
+          <button
+            className="boton boton-principal"
+            onClick={descargarReporteTxt}
+            type="button"
+          >
+            Descargar reporte TXT
+          </button>
+        </div>
       </section>
 
       <section className="estadisticas-resumen">
@@ -285,12 +297,12 @@ const Estadisticas = ({ usuario }) => {
                     {estaSeleccionado && (
                       <g className="tooltip-mes">
                         <rect
-  x={tooltipX}
-  y={punto.y - 64}
-  width="116"
-  height="46"
-  rx="10"
-/>
+                          x={tooltipX}
+                          y={punto.y - 64}
+                          width="116"
+                          height="46"
+                          rx="10"
+                        />
                         <text x={tooltipTextoX} y={punto.y - 44}>
                           {dato.semana}
                         </text>
@@ -320,31 +332,32 @@ const Estadisticas = ({ usuario }) => {
       <section className="estadisticas-detalles">
         <article className="tarjeta top-habitos">
           <h2>Top de habitos en racha</h2>
+
           <div className="filtros-top">
-  <button
-    className={filtroTop === "todos" ? "activo" : ""}
-    onClick={() => setFiltroTop("todos")}
-    type="button"
-  >
-    Todos
-  </button>
+            <button
+              className={filtroTop === "todos" ? "activo" : ""}
+              onClick={() => setFiltroTop("todos")}
+              type="button"
+            >
+              Todos
+            </button>
 
-  <button
-    className={filtroTop === "activos" ? "activo" : ""}
-    onClick={() => setFiltroTop("activos")}
-    type="button"
-  >
-    Activos
-  </button>
+            <button
+              className={filtroTop === "activos" ? "activo" : ""}
+              onClick={() => setFiltroTop("activos")}
+              type="button"
+            >
+              Activos
+            </button>
 
-  <button
-    className={filtroTop === "hoy" ? "activo" : ""}
-    onClick={() => setFiltroTop("hoy")}
-    type="button"
-  >
-    Completados hoy
-  </button>
-</div>
+            <button
+              className={filtroTop === "hoy" ? "activo" : ""}
+              onClick={() => setFiltroTop("hoy")}
+              type="button"
+            >
+              Completados hoy
+            </button>
+          </div>
 
           {topHabitos.length === 0 ? (
             <p className="texto-secundario">No hay habitos registrados.</p>
@@ -385,10 +398,9 @@ const Estadisticas = ({ usuario }) => {
         </article>
 
         <article className="tarjeta mensaje-motivacional">
-  <h2>Mensaje motivacional</h2>
-  <p>{mensajeMotivacional}</p>
-</article>
-
+          <h2>Mensaje motivacional</h2>
+          <p>{mensajeMotivacional}</p>
+        </article>
       </section>
     </main>
   );
