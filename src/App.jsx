@@ -17,6 +17,25 @@ const CLAVE_HABITOS = "habitosHabitFlow";
 const CLAVE_USUARIOS = "usuarios";
 const CLAVE_HABITOS_ANTERIOR = "habitos";
 
+const restarDias = (dias) => {
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() - dias);
+  return fecha.toISOString();
+};
+
+const normalizarHabito = (habito) => {
+  const diasReferencia = Math.max(
+    Number(habito.diasCompletados) || 0,
+    Number(habito.racha) || 0,
+    1
+  );
+
+  return {
+    ...habito,
+    createdAt: habito.createdAt || restarDias(diasReferencia)
+  };
+};
+
 const textosNavegacion = {
   español: {
     dashboard: "Dashboard",
@@ -60,15 +79,18 @@ const App = () => {
 
     if (habitosGuardados.length === 0) {
       const habitosBase = habitosAnteriores.length > 0 ? habitosAnteriores : habitosIniciales;
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosBase));
+      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosBase.map(normalizarHabito)));
     } else {
       const habitosFaltantes = habitosIniciales.filter((habitoInicial) => {
         return !habitosGuardados.some((habitoGuardado) => habitoGuardado.id === habitoInicial.id);
       });
 
-      if (habitosFaltantes.length > 0) {
-        localStorage.setItem(CLAVE_HABITOS, JSON.stringify([...habitosGuardados, ...habitosFaltantes]));
-      }
+      const habitosActualizados = [
+        ...habitosGuardados.map(normalizarHabito),
+        ...habitosFaltantes.map(normalizarHabito)
+      ];
+
+      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
     }
 
     localStorage.removeItem(CLAVE_HABITOS_ANTERIOR);

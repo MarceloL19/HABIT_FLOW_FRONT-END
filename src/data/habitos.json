@@ -9,7 +9,8 @@
     "completadoHoy": false,
     "racha": 3,
     "estado": "activo",
-    "diasCompletados": 12
+    "diasCompletados": 12,
+    "createdAt": "2026-06-25T12:00:00.000Z"
   },
   {
     "id": 2,
@@ -21,7 +22,8 @@
     "completadoHoy": true,
     "racha": 5,
     "estado": "activo",
-    "diasCompletados": 20
+    "diasCompletados": 20,
+    "createdAt": "2026-06-17T12:00:00.000Z"
   },
   {
     "id": 3,
@@ -33,7 +35,8 @@
     "completadoHoy": true,
     "racha": 6,
     "estado": "activo",
-    "diasCompletados": 18
+    "diasCompletados": 18,
+    "createdAt": "2026-06-19T12:00:00.000Z"
   },
   {
     "id": 4,
@@ -45,7 +48,8 @@
     "completadoHoy": false,
     "racha": 4,
     "estado": "activo",
-    "diasCompletados": 14
+    "diasCompletados": 14,
+    "createdAt": "2026-06-23T12:00:00.000Z"
   },
   {
     "id": 5,
@@ -57,7 +61,8 @@
     "completadoHoy": true,
     "racha": 8,
     "estado": "activo",
-    "diasCompletados": 22
+    "diasCompletados": 22,
+    "createdAt": "2026-06-15T12:00:00.000Z"
   },
   {
     "id": 6,
@@ -69,7 +74,8 @@
     "completadoHoy": false,
     "racha": 2,
     "estado": "activo",
-    "diasCompletados": 9
+    "diasCompletados": 9,
+    "createdAt": "2026-06-28T12:00:00.000Z"
   },
   {
     "id": 7,
@@ -81,7 +87,8 @@
     "completadoHoy": true,
     "racha": 7,
     "estado": "activo",
-    "diasCompletados": 25
+    "diasCompletados": 25,
+    "createdAt": "2026-06-12T12:00:00.000Z"
   },
   {
     "id": 8,
@@ -93,7 +100,8 @@
     "completadoHoy": false,
     "racha": 3,
     "estado": "activo",
-    "diasCompletados": 11
+    "diasCompletados": 11,
+    "createdAt": "2026-06-26T12:00:00.000Z"
   },
   {
     "id": 9,
@@ -105,7 +113,8 @@
     "completadoHoy": true,
     "racha": 5,
     "estado": "activo",
-    "diasCompletados": 16
+    "diasCompletados": 16,
+    "createdAt": "2026-06-21T12:00:00.000Z"
   },
   {
     "id": 10,
@@ -117,6 +126,7 @@
     "completadoHoy": false,
     "racha": 4,
     "estado": "activo",
-    "diasCompletados": 13
+    "diasCompletados": 13,
+    "createdAt": "2026-06-24T12:00:00.000Z"
   }
 ]

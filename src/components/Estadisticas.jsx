@@ -1,15 +1,50 @@
-import { useState } from "react";
-import habitosIniciales from "../data/habitos.json";
+import { useEffect, useState } from "react";
+
+const CLAVE_HABITOS = "habitosHabitFlow";
+
+const diasSemana = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+const etiquetasSemana = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
+
+const calcularDiasActivos = (createdAt) => {
+  const fechaCreacion = createdAt ? new Date(createdAt) : new Date();
+  const hoy = new Date();
+  const diferencia = hoy - fechaCreacion;
+  const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24)) + 1;
+
+  return Math.max(1, dias);
+};
+
+const normalizarHabito = (habito) => ({
+  ...habito,
+  createdAt: habito.createdAt || new Date().toISOString(),
+  diasCompletados: Number(habito.diasCompletados) || 0,
+  racha: Number(habito.racha) || 0
+});
+
+const obtenerNombreMes = (fecha) => {
+  return fecha.toLocaleDateString("es-ES", { month: "long" });
+};
 
 const Estadisticas = ({ usuario }) => {
   // Estados para controlar las selecciones interactivas de la pantalla.
-  const [diaSeleccionado, setDiaSeleccionado] = useState("Jue");
+  const [diaSeleccionado, setDiaSeleccionado] = useState(diasSemana[new Date().getDay()]);
   const [semanaSeleccionada, setSemanaSeleccionada] = useState("S4");
   const [filtroTop, setFiltroTop] = useState("todos");
-  const [mesSeleccionado, setMesSeleccionado] = useState(0);
+  const [mesSeleccionado, setMesSeleccionado] = useState(2);
+  const [habitos, setHabitos] = useState([]);
+
+  // Lee los habitos reales guardados en el navegador para que las estadisticas
+  // correspondan al usuario activo y no a datos fijos del archivo JSON.
+  useEffect(() => {
+    const guardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
+    const normalizados = guardados.map(normalizarHabito);
+
+    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(normalizados));
+    setHabitos(normalizados);
+  }, []);
 
   // Filtra los habitos para mostrar solo los que pertenecen al usuario activo.
-  const habitosUsuario = habitosIniciales.filter((habito) => {
+  const habitosUsuario = habitos.filter((habito) => {
     return habito.usuarioCorreo === usuario?.correo;
   });
 
@@ -21,15 +56,19 @@ const Estadisticas = ({ usuario }) => {
   }).length;
 
   const totalCompletados = habitosUsuario.reduce((total, habito) => {
-    return total + habito.diasCompletados;
+    return total + (Number(habito.diasCompletados) || 0);
   }, 0);
 
   const rachaActual = habitosUsuario.reduce((mayor, habito) => {
     return habito.racha > mayor ? habito.racha : mayor;
   }, 0);
 
+  const diasEsperados = habitosUsuario.reduce((total, habito) => {
+    return total + calcularDiasActivos(habito.createdAt);
+  }, 0);
+
   const progresoSemanal =
-    totalHabitos > 0 ? Math.round((completadosHoy / totalHabitos) * 100) : 0;
+    diasEsperados > 0 ? Math.min(100, Math.round((totalCompletados / diasEsperados) * 100)) : 0;
 
   // Aplica el filtro seleccionado en los botones del Top de habitos.
   const habitosFiltrados = habitosUsuario.filter((habito) => {
@@ -51,7 +90,7 @@ const Estadisticas = ({ usuario }) => {
 
   const mejorHabito = topHabitos[0];
 
-  // Mensaje que cambia segun el porcentaje de progreso semanal.
+  // Mensaje que cambia segun el porcentaje de progreso general.
   const mensajeMotivacional =
     progresoSemanal >= 70
       ? "Excelente avance, vas construyendo una gran constancia."
@@ -59,47 +98,64 @@ const Estadisticas = ({ usuario }) => {
         ? "Buen progreso, sigue completando tus habitos esta semana."
         : "Cada dia cuenta, elige un habito pequeno y empieza de nuevo.";
 
-  // Datos simulados para el grafico de cumplimiento semanal.
-  const datosSemana = [
-    { dia: "Lun", total: 3 },
-    { dia: "Mar", total: 4 },
-    { dia: "Mie", total: 2 },
-    { dia: "Jue", total: 5 },
-    { dia: "Vie", total: 4 },
-    { dia: "Sab", total: 3 },
-    { dia: "Dom", total: 2 }
-  ];
+  // Datos reales disponibles para la semana actual. El proyecto solo guarda
+  // si el habito esta completado hoy, por eso los otros dias quedan en 0.
+  const hoy = new Date();
+  const diaActual = diasSemana[hoy.getDay()];
+  const datosSemana = etiquetasSemana.map((dia) => ({
+    dia,
+    total: dia === diaActual ? completadosHoy : 0
+  }));
 
-  // Datos simulados por mes para el grafico de progreso mensual.
-  const mesesProgreso = [
-    {
-      nombre: "Mayo",
-      datos: [
-        { semana: "S1", progreso: 65 },
-        { semana: "S2", progreso: 72 },
-        { semana: "S3", progreso: 68 },
-        { semana: "S4", progreso: 86 }
-      ]
-    },
-    {
-      nombre: "Junio",
-      datos: [
-        { semana: "S1", progreso: 58 },
-        { semana: "S2", progreso: 64 },
-        { semana: "S3", progreso: 70 },
-        { semana: "S4", progreso: 78 }
-      ]
-    },
-    {
-      nombre: "Julio",
-      datos: [
-        { semana: "S1", progreso: 72 },
-        { semana: "S2", progreso: 75 },
-        { semana: "S3", progreso: 81 },
-        { semana: "S4", progreso: 88 }
-      ]
-    }
-  ];
+  // Progreso mensual calculado desde createdAt, diasCompletados y dias activos.
+  const mesesProgreso = [2, 1, 0].map((mesesAtras) => {
+    const fechaMes = new Date(hoy.getFullYear(), hoy.getMonth() - mesesAtras, 1);
+    const anio = fechaMes.getFullYear();
+    const mes = fechaMes.getMonth();
+
+    const datos = [0, 1, 2, 3].map((indiceSemana) => {
+      const inicioSemana = new Date(anio, mes, 1 + indiceSemana * 7);
+      const finSemana = new Date(anio, mes, Math.min(7 + indiceSemana * 7, new Date(anio, mes + 1, 0).getDate()));
+
+      const diasEsperadosSemana = habitosUsuario.reduce((total, habito) => {
+        const fechaCreacion = new Date(habito.createdAt);
+
+        if (fechaCreacion > finSemana) {
+          return total;
+        }
+
+        const inicioReal = fechaCreacion > inicioSemana ? fechaCreacion : inicioSemana;
+        const diasActivosSemana = Math.floor((finSemana - inicioReal) / (1000 * 60 * 60 * 24)) + 1;
+
+        return total + Math.max(0, diasActivosSemana);
+      }, 0);
+
+      const completadosEstimados = habitosUsuario.reduce((total, habito) => {
+        const fechaCreacion = new Date(habito.createdAt);
+
+        if (fechaCreacion > finSemana) {
+          return total;
+        }
+
+        const diasHastaSemana = Math.floor((finSemana - fechaCreacion) / (1000 * 60 * 60 * 24)) + 1;
+        const proporcion = Math.min(1, Math.max(0, diasHastaSemana / calcularDiasActivos(habito.createdAt)));
+
+        return total + Math.round((Number(habito.diasCompletados) || 0) * proporcion);
+      }, 0);
+
+      return {
+        semana: `S${indiceSemana + 1}`,
+        progreso: diasEsperadosSemana > 0
+          ? Math.min(100, Math.round((completadosEstimados / diasEsperadosSemana) * 100))
+          : 0
+      };
+    });
+
+    return {
+      nombre: obtenerNombreMes(fechaMes),
+      datos
+    };
+  });
 
   const mesActual = mesesProgreso[mesSeleccionado];
   const datosMes = mesActual.datos;
@@ -130,7 +186,7 @@ const Estadisticas = ({ usuario }) => {
     }
   };
 
-  const maximoSemana = Math.max(...datosSemana.map((dato) => dato.total));
+  const maximoSemana = Math.max(1, ...datosSemana.map((dato) => dato.total));
 
   const detalleDia =
     datosSemana.find((dato) => dato.dia === diaSeleccionado) || datosSemana[0];
@@ -145,7 +201,7 @@ const Estadisticas = ({ usuario }) => {
       "",
       "RESUMEN GENERAL",
       `Racha actual: ${rachaActual} dias consecutivos`,
-      `Progreso semanal: ${progresoSemanal}%`,
+      `Progreso general: ${progresoSemanal}%`,
       `Total de habitos completados: ${totalCompletados}`,
       "",
       "CUMPLIMIENTO SEMANAL",
@@ -208,7 +264,7 @@ const Estadisticas = ({ usuario }) => {
 
         <article className="tarjeta stat-card">
           <span className="stat-icono progreso">P</span>
-          <h2>Progreso semanal</h2>
+          <h2>Progreso general</h2>
           <strong>{progresoSemanal}%</strong>
           <p>completado</p>
         </article>

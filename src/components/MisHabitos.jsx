@@ -6,6 +6,11 @@ const CLAVE_HABITOS = "habitosHabitFlow";
 // Categorias disponibles para clasificar los habitos
 const categorias = ["Salud", "Estudio", "Deporte", "Trabajo", "Personal"];
 
+const normalizarHabito = (habito) => ({
+  ...habito,
+  createdAt: habito.createdAt || new Date().toISOString()
+});
+
 const MisHabitos = ({ usuario }) => {
   // Lista completa de habitos guardados
   const [habitos, setHabitos] = useState([]);
@@ -25,7 +30,10 @@ const MisHabitos = ({ usuario }) => {
   // Cuando carga la pagina leemos los habitos guardados en el navegador
   useEffect(() => {
     const guardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-    setHabitos(guardados);
+    const normalizados = guardados.map(normalizarHabito);
+
+    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(normalizados));
+    setHabitos(normalizados);
   }, []);
 
   // Guarda la lista en el navegador y en el estado
@@ -64,7 +72,8 @@ const MisHabitos = ({ usuario }) => {
         completadoHoy: false,
         racha: 0,
         estado: "activo",
-        diasCompletados: 0
+        diasCompletados: 0,
+        createdAt: new Date().toISOString()
       };
       guardarHabitos([...habitos, nuevoHabito]);
     } else {
@@ -105,7 +114,18 @@ const MisHabitos = ({ usuario }) => {
   const completarHabito = (id) => {
     const lista = habitos.map((habito) => {
       if (habito.id === id) {
-        return { ...habito, completadoHoy: !habito.completadoHoy };
+        const quedaCompletado = !habito.completadoHoy;
+        const diasCompletados = Number(habito.diasCompletados) || 0;
+        const racha = Number(habito.racha) || 0;
+
+        return {
+          ...habito,
+          completadoHoy: quedaCompletado,
+          diasCompletados: quedaCompletado
+            ? diasCompletados + 1
+            : Math.max(0, diasCompletados - 1),
+          racha: quedaCompletado ? racha + 1 : Math.max(0, racha - 1)
+        };
       }
       return habito;
     });

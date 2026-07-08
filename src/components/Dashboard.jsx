@@ -62,7 +62,18 @@ const Dashboard = ({ usuario, irAHabitos }) => {
   const completarHabito = (id) => {
     const lista = habitos.map((habito) => {
       if (habito.id === id) {
-        return { ...habito, completadoHoy: !habito.completadoHoy };
+        const quedaCompletado = !habito.completadoHoy;
+        const diasCompletados = Number(habito.diasCompletados) || 0;
+        const racha = Number(habito.racha) || 0;
+
+        return {
+          ...habito,
+          completadoHoy: quedaCompletado,
+          diasCompletados: quedaCompletado
+            ? diasCompletados + 1
+            : Math.max(0, diasCompletados - 1),
+          racha: quedaCompletado ? racha + 1 : Math.max(0, racha - 1)
+        };
       }
       return habito;
     });
