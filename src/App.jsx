@@ -146,8 +146,10 @@ const App = () => {
   // Actualiza los datos personales y preferencias tanto en la lista de usuarios como en la sesion activa.
   const actualizarUsuario = (usuarioActualizado) => {
     const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
+    const correoAnterior = usuario?.correo;
+    const correoNuevo = usuarioActualizado.correo;
     const usuariosActualizados = usuariosGuardados.map((usuarioItem) => {
-      if (usuarioItem.correo === usuario?.correo) {
+      if (usuarioItem.id === usuario?.id || usuarioItem.correo === correoAnterior) {
         return {
           ...usuarioItem,
           ...usuarioActualizado
@@ -156,6 +158,22 @@ const App = () => {
 
       return usuarioItem;
     });
+
+    if (correoAnterior !== correoNuevo) {
+      const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
+      const habitosActualizados = habitosGuardados.map((habito) => {
+        if (habito.usuarioCorreo === correoAnterior) {
+          return {
+            ...habito,
+            usuarioCorreo: correoNuevo
+          };
+        }
+
+        return habito;
+      });
+
+      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
+    }
 
     localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuariosActualizados));
     localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuarioActualizado));

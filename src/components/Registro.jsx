@@ -11,9 +11,24 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   // Valida el formulario y envia el usuario nuevo a App para guardarlo.
   const registrar = (evento) => {
     evento.preventDefault();
+    const nombreLimpio = nombre.trim();
+    const correoLimpio = correo.trim().toLowerCase();
+    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    if (nombre === "" || correo === "" || password === "" || confirmarPassword === "") {
+    setRegistroCorrecto(false);
+
+    if (nombreLimpio === "" || correoLimpio === "" || password === "" || confirmarPassword === "") {
       setMensaje("Todos los campos son obligatorios.");
+      return;
+    }
+
+    if (usuariosGuardados.some((usuario) => usuario.correo === correoLimpio)) {
+      setMensaje("Ya existe una cuenta registrada con ese correo.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setMensaje("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
 
@@ -23,8 +38,8 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
     }
 
     const nuevoUsuario = {
-      nombre: nombre,
-      correo: correo,
+      nombre: nombreLimpio,
+      correo: correoLimpio,
       password: password,
       fechaRegistro: new Date().toISOString()
     };

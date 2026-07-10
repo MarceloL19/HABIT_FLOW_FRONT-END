@@ -48,6 +48,7 @@ const textosPerfil = {
     datoTitulo: "¿Sabías qué?",
     datoTexto: "Se necesitan aproximadamente 66 días para formar un nuevo hábito. Sé paciente contigo mismo.",
     error: "El nombre y el correo son obligatorios.",
+    correoDuplicado: "Ya existe otro usuario registrado con ese correo.",
     exito: "Perfil actualizado correctamente."
   },
   inglés: {
@@ -78,6 +79,7 @@ const textosPerfil = {
     datoTitulo: "Did you know?",
     datoTexto: "It takes around 66 days to build a new habit. Be patient with yourself.",
     error: "Name and email are required.",
+    correoDuplicado: "Another user is already registered with that email.",
     exito: "Profile updated successfully."
   }
 };
@@ -123,16 +125,29 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   // Guarda cambios de datos personales y preferencias, y los envia a App para actualizar la sesion.
   const guardarCambios = (evento) => {
     evento.preventDefault();
+    const nombreLimpio = nombre.trim();
+    const correoLimpio = correo.trim().toLowerCase();
 
-    if (nombre.trim() === "" || correo.trim() === "") {
+    if (nombreLimpio === "" || correoLimpio === "") {
       setMensaje(textos.error);
+      return;
+    }
+
+    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const correoYaExiste = usuariosGuardados.some((usuarioGuardado) => {
+      const esUsuarioActual = usuarioGuardado.id === usuario?.id || usuarioGuardado.correo === usuario?.correo;
+      return !esUsuarioActual && usuarioGuardado.correo === correoLimpio;
+    });
+
+    if (correoYaExiste) {
+      setMensaje(textos.correoDuplicado);
       return;
     }
 
     const usuarioActualizado = {
       ...usuario,
-      nombre: nombre.trim(),
-      correo: correo.trim(),
+      nombre: nombreLimpio,
+      correo: correoLimpio,
       preferencias: {
         tema: tema,
         idioma: idioma,
@@ -181,7 +196,11 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
           <article className="tarjeta preferencias-card">
             <h2>{textos.preferencias}</h2>
 
-            {mensaje !== "" && <p className="mensaje exito">{mensaje}</p>}
+            {mensaje !== "" && (
+              <p className={mensaje === textos.exito ? "mensaje exito" : "mensaje error"}>
+                {mensaje}
+              </p>
+            )}
 
             <form className="formulario perfil-formulario" onSubmit={guardarCambios}>
               <label htmlFor="perfilNombre">{textos.nombre}</label>
