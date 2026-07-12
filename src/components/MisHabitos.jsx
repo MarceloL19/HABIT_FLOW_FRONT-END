@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 
-// Clave donde se guardan los habitos en el navegador (la misma que usa App.jsx)
-const CLAVE_HABITOS = "habitosHabitFlow";
+// Direccion del backend
+const API = "http://localhost:3000/api";
 
 // Categorias disponibles para clasificar los habitos
 const categorias = ["Salud", "Estudio", "Deporte", "Trabajo", "Personal"];
 
-const normalizarHabito = (habito) => ({
-  ...habito,
-  createdAt: habito.createdAt || new Date().toISOString()
-});
-
 const MisHabitos = ({ usuario }) => {
-  // Lista completa de habitos guardados
+  // Lista de habitos del usuario (viene del backend)
   const [habitos, setHabitos] = useState([]);
 
   // Campos del formulario para crear o editar un habito
@@ -27,20 +22,17 @@ const MisHabitos = ({ usuario }) => {
   // Categoria elegida para filtrar la vista ("Todas" muestra todo)
   const [filtro, setFiltro] = useState("Todas");
 
-  // Cuando carga la pagina leemos los habitos guardados en el navegador
-  useEffect(() => {
-    const guardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-    const normalizados = guardados.map(normalizarHabito);
-
-    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(normalizados));
-    setHabitos(normalizados);
-  }, []);
-
-  // Guarda la lista en el navegador y en el estado
-  const guardarHabitos = (lista) => {
-    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(lista));
-    setHabitos(lista);
+  // Le pide al backend los habitos del usuario y los guarda en el estado
+  const cargarHabitos = async () => {
+    const respuesta = await fetch(API + "/habitos/" + usuario.id_usuario);
+    const datos = await respuesta.json();
+    setHabitos(datos.habitos);
   };
+
+  // Cuando carga la pagina traemos los habitos del backend
+  useEffect(() => {
+    cargarHabitos();
+  }, []);
 
   // Deja el formulario vacio y sale del modo edicion
   const limpiarFormulario = () => {
@@ -52,7 +44,7 @@ const MisHabitos = ({ usuario }) => {
   };
 
   // Crea un habito nuevo o guarda los cambios si estamos editando
-  const guardarFormulario = (evento) => {
+  const guardarFormulario = async (evento) => {
     evento.preventDefault();
 
     // No dejamos crear un habito sin nombre
@@ -61,32 +53,33 @@ const MisHabitos = ({ usuario }) => {
     }
 
     if (idEditando === null) {
-      // Creamos un habito nuevo
-      const nuevoHabito = {
-        id: Date.now(),
-        usuarioCorreo: usuario.correo,
-        nombre: nombre,
-        descripcion: descripcion,
-        categoria: categoria,
-        frecuencia: frecuencia,
-        completadoHoy: false,
-        racha: 0,
-        estado: "activo",
-        diasCompletados: 0,
-        createdAt: new Date().toISOString()
-      };
-      guardarHabitos([...habitos, nuevoHabito]);
-    } else {
-      // Editamos el habito que tiene el id que estamos editando
-      const lista = habitos.map((habito) => {
-        if (habito.id === idEditando) {
-          return { ...habito, nombre, descripcion, categoria, frecuencia };
-        }
-        return habito;
+      // Creamos un habito nuevo en el backend
+      await fetch(API + "/habitos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_usuario: usuario.id_usuario,
+          nombre: nombre,
+          descripcion: descripcion,
+          categoria: categoria,
+          frecuencia: frecuencia
+        })
       });
-      guardarHabitos(lista);
+    } else {
+      // Editamos el habito que estamos editando
+      await fetch(API + "/habitos/" + idEditando, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre,
+          descripcion: descripcion,
+          categoria: categoria,
+          frecuencia: frecuencia
+        })
+      });
     }
 
+    await cargarHabitos();
     limpiarFormulario();
   };
 
@@ -96,13 +89,13 @@ const MisHabitos = ({ usuario }) => {
     setDescripcion(habito.descripcion);
     setCategoria(habito.categoria);
     setFrecuencia(habito.frecuencia);
-    setIdEditando(habito.id);
+    setIdEditando(habito.id_habito);
   };
 
-  // Borra un habito de la lista
-  const eliminarHabito = (id) => {
-    const lista = habitos.filter((habito) => habito.id !== id);
-    guardarHabitos(lista);
+  // Borra un habito del backend
+  const eliminarHabito = async (id) => {
+    await fetch(API + "/habitos/" + id, { method: "DELETE" });
+    await cargarHabitos();
 
     // Si estabamos editando ese habito, limpiamos el formulario
     if (idEditando === id) {
@@ -111,34 +104,13 @@ const MisHabitos = ({ usuario }) => {
   };
 
   // Marca o desmarca un habito como completado hoy
-  const completarHabito = (id) => {
-    const lista = habitos.map((habito) => {
-      if (habito.id === id) {
-        const quedaCompletado = !habito.completadoHoy;
-        const diasCompletados = Number(habito.diasCompletados) || 0;
-        const racha = Number(habito.racha) || 0;
-
-        return {
-          ...habito,
-          completadoHoy: quedaCompletado,
-          diasCompletados: quedaCompletado
-            ? diasCompletados + 1
-            : Math.max(0, diasCompletados - 1),
-          racha: quedaCompletado ? racha + 1 : Math.max(0, racha - 1)
-        };
-      }
-      return habito;
-    });
-    guardarHabitos(lista);
+  const completarHabito = async (id) => {
+    await fetch(API + "/habitos/" + id + "/cumplir", { method: "POST" });
+    await cargarHabitos();
   };
 
-  // Nos quedamos solo con los habitos del usuario que inicio sesion
-  const habitosDelUsuario = habitos.filter(
-    (habito) => habito.usuarioCorreo === usuario.correo
-  );
-
   // Aplicamos el filtro de categoria elegido
-  const habitosVisibles = habitosDelUsuario.filter((habito) => {
+  const habitosVisibles = habitos.filter((habito) => {
     if (filtro === "Todas") {
       return true;
     }
@@ -252,7 +224,7 @@ const MisHabitos = ({ usuario }) => {
 
             <div className="lista-habitos">
               {habitosDeCategoria.map((habito) => (
-                <article key={habito.id} className="tarjeta tarjeta-habito">
+                <article key={habito.id_habito} className="tarjeta tarjeta-habito">
                   <div>
                     <h3>{habito.nombre}</h3>
                     <p>{habito.descripcion}</p>
@@ -268,7 +240,7 @@ const MisHabitos = ({ usuario }) => {
                           ? "boton boton-principal"
                           : "boton boton-borde"
                       }
-                      onClick={() => completarHabito(habito.id)}
+                      onClick={() => completarHabito(habito.id_habito)}
                     >
                       {habito.completadoHoy ? "Completado" : "Marcar"}
                     </button>
@@ -282,7 +254,7 @@ const MisHabitos = ({ usuario }) => {
 
                     <button
                       className="boton boton-peligro"
-                      onClick={() => eliminarHabito(habito.id)}
+                      onClick={() => eliminarHabito(habito.id_habito)}
                     >
                       Eliminar
                     </button>

@@ -7,34 +7,9 @@ import Dashboard from "./components/Dashboard.jsx";
 import MisHabitos from "./components/MisHabitos.jsx";
 import Estadisticas from "./components/Estadisticas.jsx";
 import Perfil from "./components/Perfil.jsx";
-import usuariosIniciales from "./data/usuarios.json";
-import habitosIniciales from "./data/habitos.json";
 
 const CLAVE_USUARIO = "usuarioSesionActiva";
-const CLAVE_USUARIO_ANTERIOR = "usuarioHabitFlow";
 const CLAVE_SESION = "sesionActiva";
-const CLAVE_HABITOS = "habitosHabitFlow";
-const CLAVE_USUARIOS = "usuarios";
-const CLAVE_HABITOS_ANTERIOR = "habitos";
-
-const restarDias = (dias) => {
-  const fecha = new Date();
-  fecha.setDate(fecha.getDate() - dias);
-  return fecha.toISOString();
-};
-
-const normalizarHabito = (habito) => {
-  const diasReferencia = Math.max(
-    Number(habito.diasCompletados) || 0,
-    Number(habito.racha) || 0,
-    1
-  );
-
-  return {
-    ...habito,
-    createdAt: habito.createdAt || restarDias(diasReferencia)
-  };
-};
 
 const textosNavegacion = {
   español: {
@@ -59,48 +34,8 @@ const App = () => {
   const idiomaActual = usuario?.preferencias?.idioma || "español";
   const textos = textosNavegacion[idiomaActual] || textosNavegacion.español;
 
-  // Carga los datos iniciales y restaura la sesion activa si el usuario ya habia iniciado sesion.
+  // Restaura la sesion activa si el usuario ya habia iniciado sesion antes.
   useEffect(() => {
-    const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
-    const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-    const habitosAnteriores = JSON.parse(localStorage.getItem(CLAVE_HABITOS_ANTERIOR)) || [];
-
-    if (usuariosGuardados.length === 0) {
-      localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuariosIniciales));
-    } else {
-      const usuariosFaltantes = usuariosIniciales.filter((usuarioInicial) => {
-        return !usuariosGuardados.some((usuarioGuardado) => usuarioGuardado.correo === usuarioInicial.correo);
-      });
-
-      if (usuariosFaltantes.length > 0) {
-        localStorage.setItem(CLAVE_USUARIOS, JSON.stringify([...usuariosGuardados, ...usuariosFaltantes]));
-      }
-    }
-
-    if (habitosGuardados.length === 0) {
-      const habitosBase = habitosAnteriores.length > 0 ? habitosAnteriores : habitosIniciales;
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosBase.map(normalizarHabito)));
-    } else {
-      const habitosFaltantes = habitosIniciales.filter((habitoInicial) => {
-        return !habitosGuardados.some((habitoGuardado) => habitoGuardado.id === habitoInicial.id);
-      });
-
-      const habitosActualizados = [
-        ...habitosGuardados.map(normalizarHabito),
-        ...habitosFaltantes.map(normalizarHabito)
-      ];
-
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
-    }
-
-    localStorage.removeItem(CLAVE_HABITOS_ANTERIOR);
-
-    const usuarioAnterior = localStorage.getItem(CLAVE_USUARIO_ANTERIOR);
-    if (usuarioAnterior !== null && localStorage.getItem(CLAVE_USUARIO) === null) {
-      localStorage.setItem(CLAVE_USUARIO, usuarioAnterior);
-    }
-    localStorage.removeItem(CLAVE_USUARIO_ANTERIOR);
-
     const usuarioGuardado = localStorage.getItem(CLAVE_USUARIO);
     const sesionActiva = localStorage.getItem(CLAVE_SESION);
 
@@ -118,21 +53,10 @@ const App = () => {
     document.body.classList.toggle("tema-oscuro", usarOscuro);
   }, [usuario]);
 
-  // Registra un usuario nuevo, le asigna un ID correlativo y lo deja como usuario activo.
+  // Guarda como usuario activo al que el backend acaba de registrar.
   const registrarUsuario = (nuevoUsuario) => {
-    const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
-    const ultimoId = usuariosGuardados.reduce((mayorId, usuarioItem) => {
-      return Math.max(mayorId, Number(usuarioItem.id) || 0);
-    }, 0);
-    const usuarioConId = {
-      id: ultimoId + 1,
-      ...nuevoUsuario
-    };
-    const usuariosActualizados = [...usuariosGuardados, usuarioConId];
-
-    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuariosActualizados));
-    localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuarioConId));
-    setUsuario(usuarioConId);
+    localStorage.setItem(CLAVE_USUARIO, JSON.stringify(nuevoUsuario));
+    setUsuario(nuevoUsuario);
   };
 
   // Guarda la sesion cuando Login valida correctamente el correo y la contrasena.
@@ -143,39 +67,8 @@ const App = () => {
     setPantalla("dashboard");
   };
 
-  // Actualiza los datos personales y preferencias tanto en la lista de usuarios como en la sesion activa.
+  // Actualiza los datos del usuario activo (solo en la sesion, por ahora).
   const actualizarUsuario = (usuarioActualizado) => {
-    const usuariosGuardados = JSON.parse(localStorage.getItem(CLAVE_USUARIOS)) || [];
-    const correoAnterior = usuario?.correo;
-    const correoNuevo = usuarioActualizado.correo;
-    const usuariosActualizados = usuariosGuardados.map((usuarioItem) => {
-      if (usuarioItem.id === usuario?.id || usuarioItem.correo === correoAnterior) {
-        return {
-          ...usuarioItem,
-          ...usuarioActualizado
-        };
-      }
-
-      return usuarioItem;
-    });
-
-    if (correoAnterior !== correoNuevo) {
-      const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-      const habitosActualizados = habitosGuardados.map((habito) => {
-        if (habito.usuarioCorreo === correoAnterior) {
-          return {
-            ...habito,
-            usuarioCorreo: correoNuevo
-          };
-        }
-
-        return habito;
-      });
-
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
-    }
-
-    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuariosActualizados));
     localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuarioActualizado));
     setUsuario(usuarioActualizado);
   };

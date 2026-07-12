@@ -1,5 +1,9 @@
 import { useState } from "react";
 import logoHabitFlow from "../assets/logo-habit-flow.png";
+
+// Direccion del backend
+const API = "http://localhost:3000/api";
+
 const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -8,22 +12,16 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   const [mensaje, setMensaje] = useState("");
   const [registroCorrecto, setRegistroCorrecto] = useState(false);
 
-  // Valida el formulario y envia el usuario nuevo a App para guardarlo.
-  const registrar = (evento) => {
+  // Valida el formulario y crea el usuario en el backend.
+  const registrar = async (evento) => {
     evento.preventDefault();
     const nombreLimpio = nombre.trim();
     const correoLimpio = correo.trim().toLowerCase();
-    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     setRegistroCorrecto(false);
 
     if (nombreLimpio === "" || correoLimpio === "" || password === "" || confirmarPassword === "") {
       setMensaje("Todos los campos son obligatorios.");
-      return;
-    }
-
-    if (usuariosGuardados.some((usuario) => usuario.correo === correoLimpio)) {
-      setMensaje("Ya existe una cuenta registrada con ese correo.");
       return;
     }
 
@@ -37,14 +35,26 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
       return;
     }
 
-    const nuevoUsuario = {
-      nombre: nombreLimpio,
-      correo: correoLimpio,
-      password: password,
-      fechaRegistro: new Date().toISOString()
-    };
+    // Mandamos el usuario nuevo al backend
+    const respuesta = await fetch(API + "/auth/registro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: nombreLimpio,
+        correo: correoLimpio,
+        password: password
+      })
+    });
+    const datos = await respuesta.json();
 
-    onRegistrar(nuevoUsuario);
+    // Si el backend responde con error, mostramos su mensaje
+    if (!respuesta.ok) {
+      setMensaje(datos.mensaje);
+      return;
+    }
+
+    // El backend nos devuelve el usuario con su id_usuario real
+    onRegistrar(datos.usuario);
     setMensaje("Cuenta creada correctamente.");
     setRegistroCorrecto(true);
   };

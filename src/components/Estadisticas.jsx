@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const CLAVE_HABITOS = "habitosHabitFlow";
+// Direccion del backend
+const API = "http://localhost:3000/api";
 
 const diasSemana = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 const etiquetasSemana = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
@@ -14,9 +15,12 @@ const calcularDiasActivos = (createdAt) => {
   return Math.max(1, dias);
 };
 
-const normalizarHabito = (habito) => ({
+// Adapta un habito del backend a los campos que usa esta pantalla.
+const adaptarHabito = (habito) => ({
   ...habito,
-  createdAt: habito.createdAt || new Date().toISOString(),
+  id: habito.id_habito,
+  createdAt: habito.fecha_creacion || new Date().toISOString(),
+  estado: habito.activo ? "activo" : "inactivo",
   diasCompletados: Number(habito.diasCompletados) || 0,
   racha: Number(habito.racha) || 0
 });
@@ -33,20 +37,19 @@ const Estadisticas = ({ usuario }) => {
   const [mesSeleccionado, setMesSeleccionado] = useState(2);
   const [habitos, setHabitos] = useState([]);
 
-  // Lee los habitos reales guardados en el navegador para que las estadisticas
-  // correspondan al usuario activo y no a datos fijos del archivo JSON.
+  // Trae del backend los habitos del usuario activo para calcular las estadisticas.
   useEffect(() => {
-    const guardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-    const normalizados = guardados.map(normalizarHabito);
+    const cargarHabitos = async () => {
+      const respuesta = await fetch(API + "/habitos/" + usuario.id_usuario);
+      const datos = await respuesta.json();
+      setHabitos(datos.habitos.map(adaptarHabito));
+    };
 
-    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(normalizados));
-    setHabitos(normalizados);
+    cargarHabitos();
   }, []);
 
-  // Filtra los habitos para mostrar solo los que pertenecen al usuario activo.
-  const habitosUsuario = habitos.filter((habito) => {
-    return habito.usuarioCorreo === usuario?.correo;
-  });
+  // El backend ya devuelve solo los habitos del usuario activo.
+  const habitosUsuario = habitos;
 
   // Calculos principales que alimentan las tarjetas superiores.
   const totalHabitos = habitosUsuario.length;
