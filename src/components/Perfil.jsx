@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
+const API_URL = "http://localhost:3000";
 const CLAVE_HABITOS = "habitosHabitFlow";
 
-// Muestra la fecha de registro segun el idioma elegido en las preferencias.
 const formatearFecha = (fecha, idiomaActual) => {
   if (!fecha) {
     return "Fecha no registrada";
@@ -14,13 +14,13 @@ const formatearFecha = (fecha, idiomaActual) => {
     year: "numeric"
   };
 
-  const locale = idiomaActual === "inglés" ? "en-US" : "es-PE";
+  const locale = idiomaActual === "en" ? "en-US" : "es-PE";
 
   return new Date(fecha).toLocaleDateString(locale, opciones);
 };
 
 const textosPerfil = {
-  español: {
+  es: {
     titulo: "Mi Perfil",
     miembroDesde: "Miembro desde",
     estadisticas: "Estadísticas generales",
@@ -45,13 +45,12 @@ const textosPerfil = {
     consejoTitulo: "Consejo del día",
     consejoTexto: "Los hábitos pequeños y constantes son más efectivos que los cambios grandes pero esporádicos.",
     datoEtiqueta: "Dato útil",
-    datoTitulo: "¿Sabías qué?",
+    datoTitulo: "¿Sabías que?",
     datoTexto: "Se necesitan aproximadamente 66 días para formar un nuevo hábito. Sé paciente contigo mismo.",
     error: "El nombre y el correo son obligatorios.",
-    correoDuplicado: "Ya existe otro usuario registrado con ese correo.",
     exito: "Perfil actualizado correctamente."
   },
-  inglés: {
+  en: {
     titulo: "My Profile",
     miembroDesde: "Member since",
     estadisticas: "General stats",
@@ -79,7 +78,6 @@ const textosPerfil = {
     datoTitulo: "Did you know?",
     datoTexto: "It takes around 66 days to build a new habit. Be patient with yourself.",
     error: "Name and email are required.",
-    correoDuplicado: "Another user is already registered with that email.",
     exito: "Profile updated successfully."
   }
 };
@@ -87,21 +85,32 @@ const textosPerfil = {
 const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   const preferenciasIniciales = usuario?.preferencias || {
     tema: "claro",
-    idioma: "español",
+    idioma: "es",
     notificaciones: true
   };
-  const textos = textosPerfil[idiomaActual] || textosPerfil.español;
+  const textos = textosPerfil[idiomaActual] || textosPerfil.es;
+  const idUsuario = usuario?.id_usuario || usuario?.id;
 
   const [editando, setEditando] = useState(false);
   const [nombre, setNombre] = useState(usuario?.nombre || "");
   const [correo, setCorreo] = useState(usuario?.correo || "");
   const [tema, setTema] = useState(preferenciasIniciales.tema === "oscuro" ? "oscuro" : "claro");
-  const [idioma, setIdioma] = useState(preferenciasIniciales.idioma);
-  const [notificaciones, setNotificaciones] = useState(preferenciasIniciales.notificaciones);
+  const [idioma, setIdioma] = useState(preferenciasIniciales.idioma || "es");
+  const [notificaciones, setNotificaciones] = useState(preferenciasIniciales.notificaciones ?? true);
   const [mensaje, setMensaje] = useState("");
+  const [tipoMensaje, setTipoMensaje] = useState("exito");
   const [habitos, setHabitos] = useState([]);
 
-  // Calcula las metricas del perfil usando solo los habitos del usuario activo.
+  const mostrarError = (texto) => {
+    setTipoMensaje("error");
+    setMensaje(texto);
+  };
+
+  const mostrarExito = (texto) => {
+    setTipoMensaje("exito");
+    setMensaje(texto);
+  };
+
   const inicial = usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : "H";
   const habitosDelUsuario = habitos.filter((habito) => habito.usuarioCorreo === usuario?.correo);
   const totalHabitos = habitosDelUsuario.length;
@@ -110,7 +119,39 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
     return total + (Number(habito.diasCompletados) || 0);
   }, 0);
 
-  // Lee los habitos desde localStorage para mantener actualizadas las estadisticas del perfil.
+  useEffect(() => {
+    setNombre(usuario?.nombre || "");
+    setCorreo(usuario?.correo || "");
+    setTema(usuario?.preferencias?.tema === "oscuro" ? "oscuro" : "claro");
+    setIdioma(usuario?.preferencias?.idioma || "es");
+    setNotificaciones(usuario?.preferencias?.notificaciones ?? true);
+  }, [usuario]);
+
+  // Al abrir perfil, trae los datos frescos desde PostgreSQL por medio del backend.
+  useEffect(() => {
+    const cargarPerfil = async () => {
+      if (!idUsuario) {
+        return;
+      }
+
+      try {
+        const respuesta = await fetch(`${API_URL}/api/usuarios/${idUsuario}`);
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+          mostrarError(datos.mensaje || "No se pudo cargar el perfil.");
+          return;
+        }
+
+        actualizarUsuario(datos.usuario);
+      } catch (error) {
+        mostrarError("No se pudo conectar con el backend.");
+      }
+    };
+
+    cargarPerfil();
+  }, [idUsuario]);
+
   useEffect(() => {
     const cargarHabitos = () => {
       const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
@@ -122,42 +163,66 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
     return () => window.removeEventListener("focus", cargarHabitos);
   }, []);
 
-  // Guarda cambios de datos personales y preferencias, y los envia a App para actualizar la sesion.
-  const guardarCambios = (evento) => {
+  // Guarda datos personales y preferencias usando los endpoints del backend.
+  const guardarCambios = async (evento) => {
     evento.preventDefault();
     const nombreLimpio = nombre.trim();
     const correoLimpio = correo.trim().toLowerCase();
 
     if (nombreLimpio === "" || correoLimpio === "") {
-      setMensaje(textos.error);
+      mostrarError(textos.error);
       return;
     }
 
-    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const correoYaExiste = usuariosGuardados.some((usuarioGuardado) => {
-      const esUsuarioActual = usuarioGuardado.id === usuario?.id || usuarioGuardado.correo === usuario?.correo;
-      return !esUsuarioActual && usuarioGuardado.correo === correoLimpio;
-    });
+    try {
+      const respuestaPerfil = await fetch(`${API_URL}/api/usuarios/${idUsuario}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nombre: nombreLimpio,
+          correo: correoLimpio
+        })
+      });
 
-    if (correoYaExiste) {
-      setMensaje(textos.correoDuplicado);
-      return;
-    }
+      const datosPerfil = await respuestaPerfil.json();
 
-    const usuarioActualizado = {
-      ...usuario,
-      nombre: nombreLimpio,
-      correo: correoLimpio,
-      preferencias: {
-        tema: tema,
-        idioma: idioma,
-        notificaciones: notificaciones
+      if (!respuestaPerfil.ok) {
+        mostrarError(datosPerfil.mensaje || "No se pudo actualizar el perfil.");
+        return;
       }
-    };
 
-    actualizarUsuario(usuarioActualizado);
-    setEditando(false);
-    setMensaje(textos.exito);
+      const respuestaPreferencias = await fetch(`${API_URL}/api/usuarios/${idUsuario}/preferencias`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          tema,
+          idioma,
+          notificaciones
+        })
+      });
+
+      const datosPreferencias = await respuestaPreferencias.json();
+
+      if (!respuestaPreferencias.ok) {
+        mostrarError(datosPreferencias.mensaje || "No se pudieron actualizar las preferencias.");
+        return;
+      }
+
+      const usuarioActualizado = {
+        ...datosPerfil.usuario,
+        preferencias: datosPreferencias.preferencias
+      };
+
+      actualizarUsuario(usuarioActualizado);
+      setEditando(false);
+      mostrarExito(textos.exito);
+    } catch (error) {
+      mostrarError("No se pudo conectar con el backend.");
+    }
   };
 
   return (
@@ -170,8 +235,8 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
             <div className="avatar-perfil">{inicial}</div>
             <div>
               <h2>{usuario?.nombre}</h2>
-              <p>✉ {usuario?.correo}</p>
-              <p>▣ {textos.miembroDesde} {formatearFecha(usuario?.fechaRegistro, idiomaActual)}</p>
+              <p>Correo: {usuario?.correo}</p>
+              <p>{textos.miembroDesde} {formatearFecha(usuario?.fecha_registro, idiomaActual)}</p>
             </div>
           </article>
 
@@ -179,15 +244,15 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
             <h2>{textos.estadisticas}</h2>
             <div className="metricas-perfil">
               <div className="metrica verde">
-                <span>◎ {textos.total}</span>
+                <span>{textos.total}</span>
                 <strong>{totalHabitos}</strong>
               </div>
               <div className="metrica azul">
-                <span>◎ {textos.activos}</span>
+                <span>{textos.activos}</span>
                 <strong>{completadosHoy}</strong>
               </div>
               <div className="metrica morado">
-                <span>◎ {textos.completados}</span>
+                <span>{textos.completados}</span>
                 <strong>{habitosCompletados}</strong>
               </div>
             </div>
@@ -197,7 +262,7 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
             <h2>{textos.preferencias}</h2>
 
             {mensaje !== "" && (
-              <p className={mensaje === textos.exito ? "mensaje exito" : "mensaje error"}>
+              <p className={tipoMensaje === "exito" ? "mensaje exito" : "mensaje error"}>
                 {mensaje}
               </p>
             )}
@@ -239,8 +304,8 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
                 disabled={!editando}
                 onChange={(evento) => setIdioma(evento.target.value)}
               >
-                <option value="español">{textos.idiomaEspanol}</option>
-                <option value="inglés">{textos.idiomaIngles}</option>
+                <option value="es">{textos.idiomaEspanol}</option>
+                <option value="en">{textos.idiomaIngles}</option>
               </select>
 
               <label className="fila-check">

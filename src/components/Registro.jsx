@@ -1,6 +1,9 @@
 import { useState } from "react";
 import logoHabitFlow from "../assets/logo-habit-flow.png";
-const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
+
+const API_URL = "http://localhost:3000";
+
+const Registro = ({ irLogin, irLanding }) => {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -8,22 +11,16 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
   const [mensaje, setMensaje] = useState("");
   const [registroCorrecto, setRegistroCorrecto] = useState(false);
 
-  // Valida el formulario y envia el usuario nuevo a App para guardarlo.
-  const registrar = (evento) => {
+  // Registra al usuario usando el endpoint del backend.
+  const registrar = async (evento) => {
     evento.preventDefault();
     const nombreLimpio = nombre.trim();
     const correoLimpio = correo.trim().toLowerCase();
-    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     setRegistroCorrecto(false);
 
     if (nombreLimpio === "" || correoLimpio === "" || password === "" || confirmarPassword === "") {
       setMensaje("Todos los campos son obligatorios.");
-      return;
-    }
-
-    if (usuariosGuardados.some((usuario) => usuario.correo === correoLimpio)) {
-      setMensaje("Ya existe una cuenta registrada con ese correo.");
       return;
     }
 
@@ -37,22 +34,31 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
       return;
     }
 
-    const nuevoUsuario = {
-      nombre: nombreLimpio,
-      correo: correoLimpio,
-      password: password,
-      fechaRegistro: new Date().toISOString()
-    };
+    try {
+      const respuesta = await fetch(`${API_URL}/api/auth/registro`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nombre: nombreLimpio,
+          correo: correoLimpio,
+          password
+        })
+      });
 
-    onRegistrar(nuevoUsuario);
-    setMensaje("Cuenta creada correctamente.");
-    setRegistroCorrecto(true);
-  };
+      const datos = await respuesta.json();
 
-  // Permite entrar a la app despues de crear la cuenta correctamente.
-  const entrarAlDashboard = () => {
-    localStorage.setItem("sesionActiva", "true");
-    irDashboard();
+      if (!respuesta.ok) {
+        setMensaje(datos.mensaje || "No se pudo registrar el usuario.");
+        return;
+      }
+
+      setMensaje(datos.mensaje || "Cuenta creada correctamente.");
+      setRegistroCorrecto(true);
+    } catch (error) {
+      setMensaje("No se pudo conectar con el backend.");
+    }
   };
 
   return (
@@ -113,8 +119,8 @@ const Registro = ({ onRegistrar, irLogin, irLanding, irDashboard }) => {
         </form>
 
         {registroCorrecto && (
-          <button className="boton boton-secundario boton-ancho" onClick={entrarAlDashboard}>
-            Ir al dashboard
+          <button className="boton boton-secundario boton-ancho" onClick={irLogin}>
+            Ir al login
           </button>
         )}
 

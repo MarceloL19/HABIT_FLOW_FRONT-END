@@ -1,37 +1,45 @@
 import { useState } from "react";
 import logoHabitFlow from "../assets/logo-habit-flow.png";
+
+const API_URL = "http://localhost:3000";
+
 const Login = ({ onLogin, irRegistro, irLanding }) => {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
 
-  // Valida las credenciales contra los usuarios guardados antes de iniciar sesion.
-  const iniciarSesion = (evento) => {
+  // Envia las credenciales al backend y recibe el usuario si son correctas.
+  const iniciarSesion = async (evento) => {
     evento.preventDefault();
 
-    const usuarioGuardado = localStorage.getItem("usuarioSesionActiva");
-    const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-    if (correo === "" || password === "") {
+    if (correo.trim() === "" || password === "") {
       setMensaje("Completa el correo y la contraseña.");
       return;
     }
 
-    if (usuarioGuardado === null && usuariosGuardados.length === 0) {
-      setMensaje("Primero debes crear una cuenta.");
-      return;
+    try {
+      const respuesta = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          correo: correo.trim().toLowerCase(),
+          password
+        })
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        setMensaje(datos.mensaje || "No se pudo iniciar sesión.");
+        return;
+      }
+
+      onLogin(datos.usuario);
+    } catch (error) {
+      setMensaje("No se pudo conectar con el backend.");
     }
-
-    const usuarioPrincipal = usuarioGuardado !== null ? JSON.parse(usuarioGuardado) : null;
-    const usuario = usuariosGuardados.find((usuarioItem) => usuarioItem.correo === correo)
-      || (usuarioPrincipal?.correo === correo ? usuarioPrincipal : null);
-
-    if (!usuario || correo !== usuario.correo || password !== usuario.password) {
-      setMensaje("Correo o contraseña incorrectos.");
-      return;
-    }
-
-    onLogin(usuario);
   };
 
   return (
@@ -63,7 +71,7 @@ const Login = ({ onLogin, irRegistro, irLanding }) => {
             type="password"
             value={password}
             onChange={(evento) => setPassword(evento.target.value)}
-            placeholder="••••••••"
+            placeholder="********"
           />
 
           <button className="boton boton-principal" type="submit">
