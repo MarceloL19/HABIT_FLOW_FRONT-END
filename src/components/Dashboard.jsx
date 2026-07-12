@@ -1,39 +1,36 @@
 import { useState, useEffect } from "react";
 
-// Clave donde se guardan los habitos en el navegador (la misma que usa MisHabitos.jsx)
-const CLAVE_HABITOS = "habitosHabitFlow";
+// Direccion del backend para los habitos
+const API = "http://localhost:3000/api/habitos";
 
 const Dashboard = ({ usuario, irAHabitos }) => {
 
-  // Lista de todos los habitos guardados en el navegador
+  // Lista de habitos del usuario (viene del backend)
   const [habitos, setHabitos] = useState([]);
 
   // Guarda el id del habito que se quiere eliminar, null significa que no hay confirmacion abierta
   const [confirmarEliminar, setConfirmarEliminar] = useState(null);
 
-  // Cuando carga la pagina leemos los habitos guardados en el navegador
+  // Id del usuario que inicio sesion (lo devuelve el backend al hacer login)
+  const idUsuario = usuario?.id_usuario || usuario?.id;
+
+  // Le pide al backend los habitos del usuario y los guarda en el estado
+  const cargarHabitos = async () => {
+    const respuesta = await fetch(`${API}/${idUsuario}`);
+    const datos = await respuesta.json();
+    setHabitos(datos.habitos || []);
+  };
+
+  // Cuando carga la pagina traemos los habitos del backend
   useEffect(() => {
-    const guardados = localStorage.getItem(CLAVE_HABITOS);
-    if (guardados !== null) {
-      setHabitos(JSON.parse(guardados));
-    }
+    cargarHabitos();
   }, []);
 
   // Recarga los habitos cada vez que el usuario vuelve a esta pestana
   useEffect(() => {
-    const cargar = () => {
-      const guardados = localStorage.getItem(CLAVE_HABITOS);
-      if (guardados !== null) setHabitos(JSON.parse(guardados));
-    };
-    window.addEventListener("focus", cargar);
-    return () => window.removeEventListener("focus", cargar);
+    window.addEventListener("focus", cargarHabitos);
+    return () => window.removeEventListener("focus", cargarHabitos);
   }, []);
-
-  // Guarda la lista en el navegador y en el estado
-  const guardarHabitos = (lista) => {
-    localStorage.setItem(CLAVE_HABITOS, JSON.stringify(lista));
-    setHabitos(lista);
-  };
 
   // Devuelve un saludo segun la hora del dia
   const saludo = () => {
@@ -43,53 +40,31 @@ const Dashboard = ({ usuario, irAHabitos }) => {
     return "Buenas noches";
   };
 
-  // Nos quedamos solo con los habitos del usuario que inicio sesion
-  const habitosDelUsuario = habitos.filter(
-    (habito) => habito.usuarioCorreo === usuario?.correo
-  );
-
   // Calculos para las tarjetas de resumen
-  const habitosActivos = habitosDelUsuario.length;
-  const completadosHoy = habitosDelUsuario.filter((h) => h.completadoHoy).length;
-  const rachaMasLarga = habitosDelUsuario.length > 0
-    ? Math.max(...habitosDelUsuario.map((h) => h.racha || 0))
+  const habitosActivos = habitos.length;
+  const completadosHoy = habitos.filter((h) => h.completado_hoy).length;
+  const rachaMasLarga = habitos.length > 0
+    ? Math.max(...habitos.map((h) => h.racha || 0))
     : 0;
   const progresoSemanal = habitosActivos > 0
     ? Math.round((completadosHoy / habitosActivos) * 100)
     : 0;
 
   // Marca o desmarca un habito como completado hoy
-  const completarHabito = (id) => {
-    const lista = habitos.map((habito) => {
-      if (habito.id === id) {
-        const quedaCompletado = !habito.completadoHoy;
-        const diasCompletados = Number(habito.diasCompletados) || 0;
-        const racha = Number(habito.racha) || 0;
-
-        return {
-          ...habito,
-          completadoHoy: quedaCompletado,
-          diasCompletados: quedaCompletado
-            ? diasCompletados + 1
-            : Math.max(0, diasCompletados - 1),
-          racha: quedaCompletado ? racha + 1 : Math.max(0, racha - 1)
-        };
-      }
-      return habito;
-    });
-    guardarHabitos(lista);
+  const completarHabito = async (id) => {
+    await fetch(`${API}/${id}/toggle`, { method: "PUT" });
+    await cargarHabitos();
   };
 
-  // Borra un habito de la lista y cierra el modal de confirmacion
-  const eliminarHabito = (id) => {
-    const lista = habitos.filter((habito) => habito.id !== id);
-    guardarHabitos(lista);
+  // Borra un habito del backend y cierra el modal de confirmacion
+  const eliminarHabito = async (id) => {
+    await fetch(`${API}/${id}`, { method: "DELETE" });
+    await cargarHabitos();
     setConfirmarEliminar(null);
   };
 
-  // Devuelve el color del habito; si no tiene color propio usa el de su categoria
+  // Devuelve el color del habito segun su categoria
   const colorHabito = (habito) => {
-    if (habito.color) return habito.color;
     const colores = {
       Productividad: "#22c55e",
       Salud: "#06b6d4",
@@ -99,9 +74,8 @@ const Dashboard = ({ usuario, irAHabitos }) => {
     return colores[habito.categoria] || "#6b7280";
   };
 
-  // Devuelve el icono del habito; si no tiene icono propio usa el de su categoria
+  // Devuelve el icono del habito segun su categoria
   const iconoHabito = (habito) => {
-    if (habito.icono) return habito.icono;
     const iconos = {
       Productividad: "📗",
       Salud: "💧",
@@ -164,7 +138,7 @@ const Dashboard = ({ usuario, irAHabitos }) => {
         </div>
 
         {/* Si no hay habitos mostramos un mensaje motivacional */}
-        {habitosDelUsuario.length === 0 && (
+        {habitos.length === 0 && (
           <div className="habitos-vacio">
             <span className="habitos-vacio-icono">🌱</span>
             <h3>¡Empieza tu viaje hoy!</h3>
@@ -173,13 +147,13 @@ const Dashboard = ({ usuario, irAHabitos }) => {
         )}
 
         {/* Tarjeta por cada habito del usuario */}
-        {habitosDelUsuario.map((habito) => (
+        {habitos.map((habito) => (
           <div
-            key={habito.id}
-            className={`habito-card ${habito.completadoHoy ? "completado" : ""}`}
+            key={habito.id_habito}
+            className={`habito-card ${habito.completado_hoy ? "completado" : ""}`}
             style={{ borderLeft: `4px solid ${colorHabito(habito)}` }}
           >
-            {/* Icono con el color de la categoria o el color personalizado */}
+            {/* Icono con el color de la categoria */}
             <div className="habito-icono" style={{ backgroundColor: colorHabito(habito) }}>
               {iconoHabito(habito)}
             </div>
@@ -198,13 +172,13 @@ const Dashboard = ({ usuario, irAHabitos }) => {
             {/* Acciones: completar, editar (redirige a Mis habitos) y eliminar */}
             <div className="habito-acciones">
               <button
-                className={`btn-completar ${habito.completadoHoy ? "completado" : ""}`}
-                onClick={() => completarHabito(habito.id)}
+                className={`btn-completar ${habito.completado_hoy ? "completado" : ""}`}
+                onClick={() => completarHabito(habito.id_habito)}
               >
-                ✓ {habito.completadoHoy ? "Completado" : "Completar"}
+                ✓ {habito.completado_hoy ? "Completado" : "Completar"}
               </button>
               <button className="btn-icono" title="Editar en Mis hábitos" onClick={irAHabitos}>✏️</button>
-              <button className="btn-icono" title="Eliminar" onClick={() => setConfirmarEliminar(habito.id)}>🗑️</button>
+              <button className="btn-icono" title="Eliminar" onClick={() => setConfirmarEliminar(habito.id_habito)}>🗑️</button>
             </div>
           </div>
         ))}
