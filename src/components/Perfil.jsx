@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const API_URL = "http://localhost:3000";
-const CLAVE_HABITOS = "habitosHabitFlow";
+const API_HABITOS = `${API_URL}/api/habitos`;
 
 const formatearFecha = (fecha, idiomaActual) => {
   if (!fecha) {
@@ -99,7 +99,11 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   const [notificaciones, setNotificaciones] = useState(preferenciasIniciales.notificaciones ?? true);
   const [mensaje, setMensaje] = useState("");
   const [tipoMensaje, setTipoMensaje] = useState("exito");
-  const [habitos, setHabitos] = useState([]);
+  const [metricasHabitos, setMetricasHabitos] = useState({
+    totalHabitos: 0,
+    completadosHoy: 0,
+    habitosCompletados: 0
+  });
 
   const mostrarError = (texto) => {
     setTipoMensaje("error");
@@ -112,12 +116,7 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   };
 
   const inicial = usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : "H";
-  const habitosDelUsuario = habitos.filter((habito) => habito.usuarioCorreo === usuario?.correo);
-  const totalHabitos = habitosDelUsuario.length;
-  const completadosHoy = habitosDelUsuario.filter((habito) => habito.completadoHoy).length;
-  const habitosCompletados = habitosDelUsuario.reduce((total, habito) => {
-    return total + (Number(habito.diasCompletados) || 0);
-  }, 0);
+  const { totalHabitos, completadosHoy, habitosCompletados } = metricasHabitos;
 
   useEffect(() => {
     setNombre(usuario?.nombre || "");
@@ -153,15 +152,46 @@ const Perfil = ({ usuario, idiomaActual, actualizarUsuario, cerrarSesion }) => {
   }, [idUsuario]);
 
   useEffect(() => {
-    const cargarHabitos = () => {
-      const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-      setHabitos(habitosGuardados);
+    const cargarMetricasHabitos = async () => {
+      if (!idUsuario) {
+        setMetricasHabitos({
+          totalHabitos: 0,
+          completadosHoy: 0,
+          habitosCompletados: 0
+        });
+        return;
+      }
+
+      try {
+        const respuesta = await fetch(`${API_HABITOS}/${idUsuario}`);
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+          throw new Error(datos.mensaje || "No se pudieron cargar los habitos.");
+        }
+
+        const habitosBackend = datos.habitos || [];
+
+        setMetricasHabitos({
+          totalHabitos: habitosBackend.length,
+          completadosHoy: habitosBackend.filter((habito) => habito.completado_hoy).length,
+          habitosCompletados: habitosBackend.reduce((total, habito) => {
+            return total + (Number(habito.dias_completados) || 0);
+          }, 0)
+        });
+      } catch (error) {
+        setMetricasHabitos({
+          totalHabitos: 0,
+          completadosHoy: 0,
+          habitosCompletados: 0
+        });
+      }
     };
 
-    cargarHabitos();
-    window.addEventListener("focus", cargarHabitos);
-    return () => window.removeEventListener("focus", cargarHabitos);
-  }, []);
+    cargarMetricasHabitos();
+    window.addEventListener("focus", cargarMetricasHabitos);
+    return () => window.removeEventListener("focus", cargarMetricasHabitos);
+  }, [idUsuario]);
 
   // Guarda datos personales y preferencias usando los endpoints del backend.
   const guardarCambios = async (evento) => {

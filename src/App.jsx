@@ -7,30 +7,8 @@ import Dashboard from "./components/Dashboard.jsx";
 import MisHabitos from "./components/MisHabitos.jsx";
 import Estadisticas from "./components/Estadisticas.jsx";
 import Perfil from "./components/Perfil.jsx";
-import habitosIniciales from "./data/habitos.json";
 
 const CLAVE_USUARIO = "usuarioActivo";
-const CLAVE_HABITOS = "habitosHabitFlow";
-const CLAVE_HABITOS_ANTERIOR = "habitos";
-
-const restarDias = (dias) => {
-  const fecha = new Date();
-  fecha.setDate(fecha.getDate() - dias);
-  return fecha.toISOString();
-};
-
-const normalizarHabito = (habito) => {
-  const diasReferencia = Math.max(
-    Number(habito.diasCompletados) || 0,
-    Number(habito.racha) || 0,
-    1
-  );
-
-  return {
-    ...habito,
-    createdAt: habito.createdAt || restarDias(diasReferencia)
-  };
-};
 
 const textosNavegacion = {
   es: {
@@ -55,29 +33,8 @@ const App = () => {
   const idiomaActual = usuario?.preferencias?.idioma || "es";
   const textos = textosNavegacion[idiomaActual] || textosNavegacion.es;
 
-  // Carga habitos iniciales y restaura la sesion activa guardada desde el backend.
+  // Restaura la sesion activa guardada al iniciar sesion con el backend.
   useEffect(() => {
-    const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-    const habitosAnteriores = JSON.parse(localStorage.getItem(CLAVE_HABITOS_ANTERIOR)) || [];
-
-    if (habitosGuardados.length === 0) {
-      const habitosBase = habitosAnteriores.length > 0 ? habitosAnteriores : habitosIniciales;
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosBase.map(normalizarHabito)));
-    } else {
-      const habitosFaltantes = habitosIniciales.filter((habitoInicial) => {
-        return !habitosGuardados.some((habitoGuardado) => habitoGuardado.id === habitoInicial.id);
-      });
-
-      const habitosActualizados = [
-        ...habitosGuardados.map(normalizarHabito),
-        ...habitosFaltantes.map(normalizarHabito)
-      ];
-
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
-    }
-
-    localStorage.removeItem(CLAVE_HABITOS_ANTERIOR);
-
     const usuarioGuardado = localStorage.getItem(CLAVE_USUARIO);
 
     if (usuarioGuardado !== null) {
@@ -101,25 +58,6 @@ const App = () => {
 
   // Actualiza el usuario activo despues de guardar cambios en el backend.
   const actualizarUsuario = (usuarioActualizado) => {
-    const correoAnterior = usuario?.correo;
-    const correoNuevo = usuarioActualizado.correo;
-
-    if (correoAnterior !== correoNuevo) {
-      const habitosGuardados = JSON.parse(localStorage.getItem(CLAVE_HABITOS)) || [];
-      const habitosActualizados = habitosGuardados.map((habito) => {
-        if (habito.usuarioCorreo === correoAnterior) {
-          return {
-            ...habito,
-            usuarioCorreo: correoNuevo
-          };
-        }
-
-        return habito;
-      });
-
-      localStorage.setItem(CLAVE_HABITOS, JSON.stringify(habitosActualizados));
-    }
-
     localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuarioActualizado));
     setUsuario(usuarioActualizado);
   };
