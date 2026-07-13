@@ -16,21 +16,28 @@ const Dashboard = ({ usuario, irAHabitos }) => {
 
   // Le pide al backend los habitos del usuario y los guarda en el estado
   const cargarHabitos = async () => {
-    const respuesta = await fetch(`${API}/${idUsuario}`);
-    const datos = await respuesta.json();
-    setHabitos(datos.habitos || []);
+    try {
+      const respuesta = await fetch(`${API}/${idUsuario}`);
+      if (!respuesta.ok) throw new Error("Error al cargar hábitos");
+      const datos = await respuesta.json();
+      setHabitos(datos.habitos || []);
+    } catch (error) {
+      console.error("Error al cargar hábitos:", error);
+    }
   };
 
-  // Cuando carga la pagina traemos los habitos del backend
+  // Cuando carga la pagina (o cambia el usuario) traemos los habitos del backend
   useEffect(() => {
-    cargarHabitos();
-  }, []);
+    if (idUsuario) cargarHabitos();
+  }, [idUsuario]);
 
   // Recarga los habitos cada vez que el usuario vuelve a esta pestana
   useEffect(() => {
+    if (!idUsuario) return;
+
     window.addEventListener("focus", cargarHabitos);
     return () => window.removeEventListener("focus", cargarHabitos);
-  }, []);
+  }, [idUsuario]);
 
   // Devuelve un saludo segun la hora del dia
   const saludo = () => {
@@ -52,15 +59,26 @@ const Dashboard = ({ usuario, irAHabitos }) => {
 
   // Marca o desmarca un habito como completado hoy
   const completarHabito = async (id) => {
-    await fetch(`${API}/${id}/toggle`, { method: "PUT" });
-    await cargarHabitos();
+    try {
+      const respuesta = await fetch(`${API}/${id}/toggle`, { method: "PUT" });
+      if (!respuesta.ok) throw new Error("Error al actualizar hábito");
+      await cargarHabitos();
+    } catch (error) {
+      console.error("Error al completar hábito:", error);
+    }
   };
 
   // Borra un habito del backend y cierra el modal de confirmacion
   const eliminarHabito = async (id) => {
-    await fetch(`${API}/${id}`, { method: "DELETE" });
-    await cargarHabitos();
-    setConfirmarEliminar(null);
+    try {
+      const respuesta = await fetch(`${API}/${id}`, { method: "DELETE" });
+      if (!respuesta.ok) throw new Error("Error al eliminar hábito");
+      await cargarHabitos();
+    } catch (error) {
+      console.error("Error al eliminar hábito:", error);
+    } finally {
+      setConfirmarEliminar(null);
+    }
   };
 
   // Devuelve el color del habito segun su categoria
@@ -185,7 +203,7 @@ const Dashboard = ({ usuario, irAHabitos }) => {
       </section>
 
       {/* Modal de confirmacion antes de eliminar un habito */}
-      {confirmarEliminar && (
+      {confirmarEliminar !== null && (
         <div className="modal-overlay">
           <div className="modal">
             <button className="modal-cerrar" onClick={() => setConfirmarEliminar(null)}>✕</button>
