@@ -94,6 +94,7 @@ const App = () => {
   if (pantalla === "registro") {
     return (
       <Registro
+        onRegistroExitoso={iniciarSesion}
         irLogin={() => setPantalla("login")}
         irLanding={() => setPantalla("landing")}
       />

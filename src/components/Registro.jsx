@@ -3,13 +3,14 @@ import logoHabitFlow from "../assets/logo-habit-flow.png";
 
 const API_URL = "http://localhost:3000";
 
-const Registro = ({ irLogin, irLanding }) => {
+const Registro = ({ onRegistroExitoso, irLogin, irLanding }) => {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [confirmarPassword, setConfirmarPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [registroCorrecto, setRegistroCorrecto] = useState(false);
+  const [usuarioRegistrado, setUsuarioRegistrado] = useState(null);
 
   // Registra al usuario usando el endpoint del backend.
   const registrar = async (evento) => {
@@ -18,6 +19,7 @@ const Registro = ({ irLogin, irLanding }) => {
     const correoLimpio = correo.trim().toLowerCase();
 
     setRegistroCorrecto(false);
+    setUsuarioRegistrado(null);
 
     if (nombreLimpio === "" || correoLimpio === "" || password === "" || confirmarPassword === "") {
       setMensaje("Todos los campos son obligatorios.");
@@ -56,6 +58,7 @@ const Registro = ({ irLogin, irLanding }) => {
 
       setMensaje(datos.mensaje || "Cuenta creada correctamente.");
       setRegistroCorrecto(true);
+      setUsuarioRegistrado(datos.usuario);
     } catch (error) {
       setMensaje("No se pudo conectar con el backend.");
     }
@@ -119,9 +122,17 @@ const Registro = ({ irLogin, irLanding }) => {
         </form>
 
         {registroCorrecto && (
-          <button className="boton boton-secundario boton-ancho" onClick={irLogin}>
-            Ir al login
-          </button>
+          <>
+            <button
+              className="boton boton-secundario boton-ancho"
+              onClick={() => onRegistroExitoso(usuarioRegistrado)}
+            >
+              Ir al dashboard
+            </button>
+            <button className="boton boton-texto boton-ancho" onClick={irLogin}>
+              Ir al login
+            </button>
+          </>
         )}
 
         <p className="cambio-pantalla">
